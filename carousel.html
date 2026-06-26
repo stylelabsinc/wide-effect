@@ -50,6 +50,8 @@
   .cover-now img{width:64px;height:64px;border-radius:8px;object-fit:cover;border:2px solid var(--red)}
   .cover-now button{font-family:inherit;font-size:12px;font-weight:900;background:transparent;border:1px solid var(--line);color:#fff;border-radius:7px;padding:8px 12px;cursor:pointer}
   .saverow{display:flex;gap:8px}.saverow input{flex:1}
+  .saverow2{display:flex;gap:7px;margin-top:7px}.saverow2 .mini{flex:1}
+  .editing-tag{font-size:11px;font-weight:700;color:var(--red);background:rgba(253,75,72,.1);border:1px solid rgba(253,75,72,.32);border-radius:6px;padding:6px 9px;margin-bottom:8px}
   .mini{font-family:inherit;font-size:12px;font-weight:900;border:none;border-radius:7px;padding:10px 13px;cursor:pointer;background:var(--red);color:#fff}
   .mini.ghost{background:transparent;border:1px solid var(--line);color:#fff}
   .posts{display:flex;flex-direction:column;gap:7px}
@@ -174,7 +176,9 @@
       </div>
       <div class="card">
         <div class="card-h">Save this post</div>
-        <div class="saverow"><input type="text" id="posttitle" placeholder="Name this post"><button class="mini" onclick="savePost()">Save</button></div>
+        <div id="editingTag" class="editing-tag" style="display:none"></div>
+        <div class="saverow"><input type="text" id="posttitle" placeholder="Name this post"><button class="mini" id="savebtn" onclick="savePost()">Save</button></div>
+        <div class="saverow2" id="saverow2" style="display:none"><button class="mini ghost" onclick="saveAsNew()">Save as new</button><button class="mini ghost" onclick="newPost()">Start new</button></div>
       </div>
       <details class="card adv"><summary>Advanced — edit slide text</summary><div class="advbody">
         <div class="blk"><div class="lbl">1 · Cover</div><label>Eyebrow</label><input type="text" id="c_eb" oninput="render()"><label>Headline (line break = new line · **stars** = red)</label><textarea id="c_h" rows="3" oninput="render()"></textarea><label>Sub line</label><input type="text" id="c_sub" oninput="render()"></div>
@@ -327,7 +331,7 @@ function collectJSON(){
 }
 function updatePromptUI(){document.getElementById('promptTitle').textContent=window.HAS_DECK?'Refine with AI':'Build with AI';document.getElementById('promptDesc').textContent=window.HAS_DECK?'Tell Claude what to change. e.g. "make the cover punchier", "lead with the retirement stat".':'Paste your post or describe it. Claude builds the 5-slide deck on brand.';document.getElementById('aiprompt').placeholder=window.HAS_DECK?'What should change?':'Paste a LinkedIn post, blog excerpt, or notes...';document.getElementById('go').textContent=window.HAS_DECK?'Update deck':'Build deck';document.getElementById('newbtn').style.display=window.HAS_DECK?'':'none';}
 function addLog(t){const l=document.getElementById('log');const d=document.createElement('div');d.className='item';d.textContent=t;l.insertBefore(d,l.firstChild);}
-function newDeck(){window.HAS_DECK=false;window.CURRENT_ID=null;document.getElementById('log').innerHTML='';loadSample();updatePromptUI();status('');}
+function newDeck(){window.HAS_DECK=false;window.CURRENT_ID=null;window.CURRENT_TITLE='';document.getElementById('log').innerHTML='';loadSample();updatePromptUI();status('');reflectSave();}
 
 async function aiSubmit(){
   const text=(v('aiprompt')||'').trim();if(!text){status('Type something first.');return;}
@@ -336,22 +340,32 @@ async function aiSubmit(){
   btn.textContent=editing?'Updating...':'Building...';status(editing?'Applying your change (Opus)...':'Building your deck (Opus)...');
   const payload=editing?{mode:'edit',instruction:text,url:url,current:collectJSON()}:{src:text,url:url};
   try{const res=await fetch(AI_ENDPOINT,{method:'POST',headers:{'content-type':'application/json','x-we-app':APP_KEY},body:JSON.stringify(payload)});const data=await res.json();
-    if(data&&data.slides){applyJSON(data.slides,url);window.HAS_DECK=true;addLog((editing?'\u270e ':'\u2605 ')+text);document.getElementById('aiprompt').value='';updatePromptUI();status('Done.');if(window.innerWidth<=880)switchView('preview');}
+    if(data&&data.slides){applyJSON(data.slides,url);window.HAS_DECK=true;if(!editing){window.CURRENT_ID=null;window.CURRENT_TITLE='';set('posttitle','');reflectSave();}addLog((editing?'\u270e ':'\u2605 ')+text);document.getElementById('aiprompt').value='';updatePromptUI();status('Done.');if(window.innerWidth<=880)switchView('preview');}
     else status('Error: '+((data&&data.error)||'unexpected response'));
   }catch(e){status('Could not reach the AI service.');}
   btn.disabled=false;btn.textContent=ol;
 }
 
 async function call(ep,payload){const res=await fetch(ep,{method:'POST',headers:{'content-type':'application/json','x-we-app':APP_KEY},body:JSON.stringify(payload)});return res.json();}
+function reflectSave(){
+  const t=document.getElementById('editingTag'),b=document.getElementById('savebtn'),r=document.getElementById('saverow2');
+  if(window.CURRENT_ID){if(t){t.style.display='block';t.textContent='Editing saved post: '+(window.CURRENT_TITLE||'Untitled');}if(b)b.textContent='Update';if(r)r.style.display='flex';}
+  else{if(t)t.style.display='none';if(b)b.textContent='Save';if(r)r.style.display='none';}
+}
 async function savePost(){
   if(!window.HAS_DECK){status2('Build a deck first.');return;}
-  let title=(v('posttitle')||'').trim();if(!title){title=(v('c_h')||'Untitled').split('\n')[0].replace(/\*/g,'').trim()||'Untitled';}
-  status2('Saving...');
-  try{const d=await call(POSTS_ENDPOINT,{action:'save',title:title,url:v('ai_url'),image_idx:SEL,slides:collectJSON(),id:window.CURRENT_ID||undefined});if(d&&d.post){window.CURRENT_ID=d.post.id;set('posttitle','');status2('Saved.');setTimeout(()=>status2(''),2000);}else status2('Save failed.');}catch(e){status2('Save failed.');}
+  let title=(v('posttitle')||'').trim();if(!title){title=window.CURRENT_TITLE||(v('c_h')||'Untitled').split('\n')[0].replace(/\*/g,'').trim()||'Untitled';}
+  const updating=!!window.CURRENT_ID;
+  status2(updating?'Updating...':'Saving...');
+  try{const d=await call(POSTS_ENDPOINT,{action:'save',title:title,url:v('ai_url'),image_idx:SEL,slides:collectJSON(),id:window.CURRENT_ID||undefined});
+    if(d&&d.post){window.CURRENT_ID=d.post.id;window.CURRENT_TITLE=d.post.title||title;set('posttitle',window.CURRENT_TITLE);reflectSave();listPosts();status2(updating?'Updated.':'Saved.');setTimeout(()=>status2(''),2000);}
+    else status2('Save failed.');}catch(e){status2('Save failed.');}
 }
+async function saveAsNew(){window.CURRENT_ID=null;window.CURRENT_TITLE='';await savePost();}
+function newPost(){window.CURRENT_ID=null;window.CURRENT_TITLE='';set('posttitle','');reflectSave();status2('New post — saving will create a new entry.');setTimeout(()=>status2(''),2500);}
 async function listPosts(){const box=document.getElementById('posts');try{const d=await call(POSTS_ENDPOINT,{action:'list'});const posts=(d&&d.posts)||[];box.innerHTML=posts.length?posts.map(p=>`<div class="post"><span class="ptitle" onclick="loadPost('${p.id}')">${esc(p.title)}</span><button class="x" onclick="deletePost('${p.id}')">&times;</button></div>`).join(''):'<div class="empty">No saved posts yet.</div>';}catch(e){box.innerHTML='<div class="empty">Could not load posts.</div>';}}
-async function loadPost(id){status2('Loading...');try{const d=await call(POSTS_ENDPOINT,{action:'get',id:id});if(d&&d.post){const p=d.post;if(Number.isInteger(p.image_idx)&&p.image_idx<window.GALLERY.length)SEL=p.image_idx;applyJSON(p.slides,p.url);window.HAS_DECK=true;window.CURRENT_ID=p.id;document.getElementById('log').innerHTML='';addLog('Loaded: '+p.title);updatePromptUI();coverThumb();buildGrid();status2('');switchView('studio');}else status2('Load failed.');}catch(e){status2('Load failed.');}}
-async function deletePost(id){if(!confirm('Delete this post?'))return;try{await call(POSTS_ENDPOINT,{action:'delete',id:id});if(window.CURRENT_ID===id)window.CURRENT_ID=null;listPosts();}catch(e){}}
+async function loadPost(id){status2('Loading...');try{const d=await call(POSTS_ENDPOINT,{action:'get',id:id});if(d&&d.post){const p=d.post;if(Number.isInteger(p.image_idx)&&p.image_idx<window.GALLERY.length)SEL=p.image_idx;applyJSON(p.slides,p.url);window.HAS_DECK=true;window.CURRENT_ID=p.id;window.CURRENT_TITLE=p.title;set('posttitle',p.title);reflectSave();document.getElementById('log').innerHTML='';addLog('Loaded: '+p.title);updatePromptUI();coverThumb();buildGrid();status2('');switchView('studio');}else status2('Load failed.');}catch(e){status2('Load failed.');}}
+async function deletePost(id){if(!confirm('Delete this post?'))return;try{await call(POSTS_ENDPOINT,{action:'delete',id:id});if(window.CURRENT_ID===id){window.CURRENT_ID=null;window.CURRENT_TITLE='';set('posttitle','');reflectSave();}listPosts();}catch(e){}}
 
 async function loadGallery(){try{const d=await call(IMAGES_ENDPOINT,{action:'list'});const imgs=(d&&d.images)||[];const have=new Set(window.GALLERY.filter(g=>g.remote).map(g=>g.id));imgs.forEach(im=>{if(!have.has(im.id))window.GALLERY.push({id:im.id,src:im.url,clean:true,remote:true,label:im.prompt||'Generated'});});buildGrid();coverThumb();}catch(e){buildGrid();}}
 function addImageToGallery(image,select){window.GALLERY.push({id:image.id,src:image.url,clean:true,remote:true,label:'Generated'});buildGrid();if(select){SEL=window.GALLERY.length-1;coverThumb();render();buildGrid();}}
