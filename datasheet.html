@@ -35,6 +35,22 @@
   #srcin{min-height:90px}
   .row{display:flex;gap:8px;margin-top:10px}.row .btn{flex:1}
   .status{font-size:12px;font-weight:700;margin-top:9px;min-height:15px;color:var(--muted)}
+  .saverow{display:flex;gap:8px}.saverow input{flex:1}
+  .saverow2{display:flex;gap:7px;margin-top:8px}.saverow2 .btn{flex:1}
+  .editing-tag{font-size:11px;font-weight:700;color:var(--red);background:rgba(253,75,72,.1);border:1px solid rgba(253,75,72,.32);border-radius:6px;padding:6px 9px;margin-bottom:8px}
+  .dsposts .post{background:var(--field);border:1px solid var(--dline);border-radius:9px;overflow:hidden}
+  .dsposts .post+.post{margin-top:8px}
+  .dsposts .post-row{display:flex;align-items:center;gap:8px;padding:11px 12px}
+  .dsposts .ptitle{flex:1;font-size:13px;font-weight:700;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dsposts .ptitle:hover{color:var(--red)}
+  .dsposts .x{background:none;border:none;color:var(--muted);font-size:19px;cursor:pointer;line-height:1;padding:4px}
+  .dsposts .x:hover{color:var(--red)}
+  .dsposts .post-edit{padding:11px 12px 13px;border-top:1px solid var(--dline)}
+  .dsposts .post-edit input,.dsposts .post-edit textarea{background:#141b27}
+  .pe-l{display:block;font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:9px 0 5px}.pe-l:first-child{margin-top:0}
+  .pe-actions{display:flex;gap:7px;margin-top:9px}.pe-actions .btn{flex:1}
+  .pe-status{font-size:11px;color:var(--muted);margin-top:9px;min-height:14px}
+  .empty{font-size:12px;color:var(--muted);padding:6px 2px}
   label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:11px 0 5px}
   .heroes{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
   .heroes button{position:relative;padding:0;border:2px solid transparent;border-radius:7px;overflow:hidden;cursor:pointer;background:#000;aspect-ratio:3/2}
@@ -182,6 +198,14 @@
       <label>Industries (comma separated)</label><input type="text" id="f_industries" oninput="pull()">
       <label>Stats (one per line · "25+ | Years of Experience")</label><textarea id="f_stats" rows="4" oninput="pull()"></textarea>
     </div></details>
+    <div class="card">
+      <div class="card-h">Saved sheets</div>
+      <div id="ds_tag" class="editing-tag" style="display:none"></div>
+      <div class="saverow"><input type="text" id="ds_title" placeholder="Name this sheet"><button class="btn" id="ds_savebtn" onclick="dsSave()">Save</button></div>
+      <div class="saverow2" id="ds_saverow2" style="display:none"><button class="btn ghost sm" onclick="dsSaveAsNew()">Save as new</button><button class="btn ghost sm" onclick="dsNew()">Start new</button></div>
+      <div id="ds_savestat" class="status"></div>
+      <div id="ds_posts" class="dsposts" style="margin-top:11px"></div>
+    </div>
   </div>
   <div class="preview">
     <div class="preview-tag">Live preview · 8.5 × 11 in · true Lato</div>
@@ -234,6 +258,7 @@ const APP_KEY="we-bomb-pk-3Jx72Qa9Lm";
 const DS_ENDPOINT="https://ubvoaoyqcdhcatsvqsdz.supabase.co/functions/v1/datasheet-ai";
 const IMAGES_ENDPOINT="https://ubvoaoyqcdhcatsvqsdz.supabase.co/functions/v1/carousel-images";
 const GENIMG_ENDPOINT="https://ubvoaoyqcdhcatsvqsdz.supabase.co/functions/v1/generate-image";
+const DS_POSTS_ENDPOINT="https://ubvoaoyqcdhcatsvqsdz.supabase.co/functions/v1/datasheet-posts";
 async function call(url,body){const r=await fetch(url,{method:'POST',headers:{'content-type':'application/json','x-we-app':APP_KEY},body:JSON.stringify(body)});return await r.json();}
 let GALLERY=LIBRARY.map((im,i)=>({id:'e'+i,src:im.src,clean:im.clean,remote:false}));
 let HERO=2;
@@ -339,6 +364,31 @@ async function refine(){
   }catch(e){rstat('Could not reach the AI service.');}
   b.disabled=false;b.textContent=o;
 }
+function dsReflect(){
+  const t=document.getElementById('ds_tag'),b=document.getElementById('ds_savebtn'),r=document.getElementById('ds_saverow2');
+  if(window.DS_CURRENT_ID){if(t){t.style.display='block';t.textContent='Editing saved sheet: '+(window.DS_CURRENT_TITLE||'Untitled');}if(b)b.textContent='Update';if(r)r.style.display='flex';}
+  else{if(t)t.style.display='none';if(b)b.textContent='Save';if(r)r.style.display='none';}
+}
+function dsContent(){return {eyebrow:DS.eyebrow,headline:DS.headline,sub:DS.sub,pills:DS.pills,qr_url:DS.qr_url,challenge:DS.challenge,impact:DS.impact,why:DS.why,solution:DS.solution,supports_title:DS.supports_title,supports:DS.supports,claim:DS.claim,industries:DS.industries,stats:DS.stats};}
+function dsEditable(){return {eyebrow:DS.eyebrow,headline:DS.headline,sub:DS.sub,pills:DS.pills,challenge:DS.challenge,impact:DS.impact,why:DS.why,solution:DS.solution,supports_title:DS.supports_title,supports:DS.supports,claim:DS.claim};}
+function dsSstat(m){const e=document.getElementById('ds_savestat');if(e)e.textContent=m;}
+async function dsSave(){
+  let title=(v('ds_title')||'').trim()||window.DS_CURRENT_TITLE||(DS.headline||'Untitled').split('\n')[0].replace(/\*/g,'').trim()||'Untitled';
+  const updating=!!window.DS_CURRENT_ID;dsSstat(updating?'Updating...':'Saving...');
+  try{const d=await call(DS_POSTS_ENDPOINT,{action:'save',id:window.DS_CURRENT_ID||undefined,title:title,url:window.DS_URL||v('srcin')||'',hero_idx:HERO,content:dsContent()});
+    if(d&&d.post){window.DS_CURRENT_ID=d.post.id;window.DS_CURRENT_TITLE=d.post.title||title;set('ds_title',window.DS_CURRENT_TITLE);dsReflect();dsList();dsSstat(updating?'Updated.':'Saved.');setTimeout(()=>dsSstat(''),2000);}
+    else dsSstat('Save failed.');}catch(e){dsSstat('Save failed.');}
+}
+async function dsSaveAsNew(){window.DS_CURRENT_ID=null;window.DS_CURRENT_TITLE='';await dsSave();}
+function dsNew(){window.DS_CURRENT_ID=null;window.DS_CURRENT_TITLE='';set('ds_title','');dsReflect();dsSstat('New sheet \u2014 saving will create a new entry.');setTimeout(()=>dsSstat(''),2500);}
+function dsPstat(id,m){const e=document.getElementById('dsps_'+id);if(e)e.textContent=m;}
+async function dsList(){const box=document.getElementById('ds_posts');if(!box)return;try{const d=await call(DS_POSTS_ENDPOINT,{action:'list'});const posts=(d&&d.posts)||[];box.innerHTML=posts.length?posts.map(p=>`<div class="post" id="dsp_${p.id}"><div class="post-row"><span class="ptitle" onclick="dsToggle('${p.id}')">${esc(p.title)}</span><button class="x" onclick="dsDelete('${p.id}')">&times;</button></div><div class="post-edit" id="dsedit_${p.id}" style="display:none"><label class="pe-l">Name</label><input type="text" id="dspt_${p.id}" value="${esc(p.title)}"><label class="pe-l">Change with AI</label><textarea id="dspr_${p.id}" placeholder="e.g. tighten the challenge, lead with the savings stat"></textarea><div class="pe-actions"><button class="btn ghost sm" id="dsprb_${p.id}" onclick="dsRefineInline('${p.id}')">Refine</button><button class="btn sm" onclick="dsSaveInline('${p.id}')">Save changes</button></div><div class="pe-actions"><button class="btn ghost sm" onclick="dsOpen('${p.id}')">Open in editor</button></div><div class="pe-status" id="dsps_${p.id}"></div></div></div>`).join(''):'<div class="empty">No saved sheets yet.</div>';}catch(e){box.innerHTML='<div class="empty">Could not load sheets.</div>';}}
+async function dsLoadInto(id){const d=await call(DS_POSTS_ENDPOINT,{action:'get',id:id});if(d&&d.post){const p=d.post;if(Number.isInteger(p.hero_idx)&&p.hero_idx<GALLERY.length)HERO=p.hero_idx;applyContent(p.content||{});buildHeroes();window.DS_CURRENT_ID=p.id;window.DS_CURRENT_TITLE=p.title;window.DS_URL=p.url||'';set('ds_title',p.title);dsReflect();return true;}return false;}
+async function dsToggle(id){const panel=document.getElementById('dsedit_'+id);if(!panel)return;const open=panel.style.display!=='none';document.querySelectorAll('.dsposts .post-edit').forEach(e=>e.style.display='none');if(open)return;panel.style.display='block';dsPstat(id,'Loading...');const ok=await dsLoadInto(id);dsPstat(id,ok?'Loaded \u2014 edit and Save changes.':'Load failed.');if(window.innerWidth<=880)tab('preview');}
+async function dsRefineInline(id){const ins=(v('dspr_'+id)||'').trim();if(!ins){dsPstat(id,'Type a change first.');return;}if(window.DS_CURRENT_ID!==id){const ok=await dsLoadInto(id);if(!ok){dsPstat(id,'Could not load.');return;}}const b=document.getElementById('dsprb_'+id);if(b)b.disabled=true;dsPstat(id,'Refining (Opus, ~15s)...');try{const d=await call(DS_ENDPOINT,{mode:'edit',current:dsEditable(),instruction:ins});if(d&&d.content){applyContent(d.content);set('dspr_'+id,'');const h=(DS.headline||'').split('\n')[0].replace(/\*/g,'').trim();dsPstat(id,'Headline now: \u201c'+h+'\u201d \u2014 Save changes to keep.');if(window.innerWidth<=880)tab('preview');}else dsPstat(id,'Error: '+((d&&d.error)||'unexpected'));}catch(e){dsPstat(id,'Refine failed.');}if(b)b.disabled=false;}
+async function dsSaveInline(id){if(window.DS_CURRENT_ID!==id){const ok=await dsLoadInto(id);if(!ok){dsPstat(id,'Could not load to save.');return;}}let title=(v('dspt_'+id)||'').trim()||window.DS_CURRENT_TITLE||'Untitled';dsPstat(id,'Saving...');try{const d=await call(DS_POSTS_ENDPOINT,{action:'save',id:id,title:title,url:window.DS_URL||'',hero_idx:HERO,content:dsContent()});if(d&&d.post){window.DS_CURRENT_TITLE=d.post.title||title;const span=document.querySelector('#dsp_'+id+' .ptitle');if(span)span.textContent=window.DS_CURRENT_TITLE;dsPstat(id,'Saved \u2713');setTimeout(()=>dsPstat(id,'Loaded \u2014 edit and Save changes.'),2200);}else dsPstat(id,'Save failed.');}catch(e){dsPstat(id,'Save failed.');}}
+function dsOpen(id){if(window.DS_CURRENT_ID!==id){dsLoadInto(id);}document.querySelectorAll('.dsposts .post-edit').forEach(e=>e.style.display='none');if(window.innerWidth<=880)tab('build');const c=document.querySelector('details.adv');if(c)c.setAttribute('open','');window.scrollTo({top:0,behavior:'smooth'});}
+async function dsDelete(id){if(!confirm('Delete this sheet?'))return;try{await call(DS_POSTS_ENDPOINT,{action:'delete',id:id});if(window.DS_CURRENT_ID===id){window.DS_CURRENT_ID=null;window.DS_CURRENT_TITLE='';set('ds_title','');dsReflect();}dsList();}catch(e){}}
 async function generate(){
   const src=(v('srcin')||'').trim();if(!src){gstat('Paste a URL or describe the service first.');return;}
   const btn=document.getElementById('genbtn');btn.disabled=true;const o=btn.textContent;btn.textContent='Reading & writing...';gstat('Reading the page and writing the sheet (Opus, ~20s)...');
@@ -347,7 +397,7 @@ async function generate(){
   try{
     const res=await fetch(DS_ENDPOINT,{method:'POST',headers:{'content-type':'application/json','x-we-app':APP_KEY},body:JSON.stringify(payload)});
     const data=await res.json();
-    if(data&&data.content){applyContent(data.content);gstat('Done.');if(window.innerWidth<=880)tab('preview');}
+    if(data&&data.content){applyContent(data.content);window.DS_CURRENT_ID=null;window.DS_CURRENT_TITLE='';window.DS_URL=isUrl?src:'https://wideeffect.com';set('ds_title','');dsReflect();gstat('Done.');if(window.innerWidth<=880)tab('preview');}
     else gstat('Error: '+((data&&data.error)||'unexpected response'));
   }catch(e){gstat('Could not reach the AI service.');}
   btn.disabled=false;btn.textContent=o;
@@ -372,7 +422,7 @@ async function downloadPDF(){
 
 // seed with EOR example
 applyContent({eyebrow:"Employer Of Record  //  Nationwide",headline:"We Become The\n**Legal Employer.**",sub:"Wide Effect serves as your legal employer of record, centralizing payroll, tax, workers' comp, and employment administration across the United States, so you scale with full control and confidence.",pills:["Multi-State Payroll","Workers' Comp Administration","Compliance-First Model"],challenge:"Managing employment compliance, payroll, and workforce risk across multiple states quickly becomes a structural barrier in labor-intensive industries. Escalating workers' comp costs, evolving labor laws, and multi-state tax obligations create exposure most internal teams are not built to manage. Left unaddressed, these risks erode margin and delay expansion.",impact:[{p:"Compliance exposure.",r:"Evolving labor laws and multi-state requirements create audit vulnerability internal teams are not built to manage at scale."},{p:"Rising comp costs.",r:"Escalating workers' compensation costs in higher-risk trades quietly eat into margin on every project."},{p:"Expansion friction.",r:"Standing up separate employment entities just to operate in a new state delays geographic growth."},{p:"Administrative drag.",r:"Payroll, tax filings, and unemployment claims stretch teams built for one or two jurisdictions."}],why:"As organizations scale, workforce administration compounds faster than headcount. Centralizing that infrastructure is not overhead. It is how operators reduce legal exposure, strengthen control, and keep expanding without drag.",solution:["Wide Effect becomes your legal employer of record, centralizing payroll, tax, workers' comp, unemployment claims, and benefits into one compliance-first backbone. You keep full control of supervision, scheduling, and project execution.","Because the backbone is centralized, you expand across states without forming new entities. Compliance stays consistent from a single site to a multi-state workforce, backed by 25-plus years supporting high-compliance industries."],supports_title:"How Wide Effect Supports You",supports:[{p:"Payroll & tax administration.",r:"Structured payroll plus calculation, filing, and remittance of federal, state, and local employment taxes across every jurisdiction."},{p:"Workers' comp & unemployment.",r:"Coverage coordination and claims management tailored to higher-risk trades, plus structured unemployment filings."},{p:"Legal employer of record.",r:"Wide Effect serves as the employer on record, owning employment compliance while you keep full operational control."},{p:"Benefits & HR administration.",r:"Centralized benefits coordination, onboarding, documentation oversight, and employee support from one point."}]});
-buildHeroes();loadGallery();
+buildHeroes();loadGallery();dsList();dsReflect();
 </script>
 </body>
 </html>
