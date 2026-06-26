@@ -42,6 +42,8 @@
   .heroes button.sel{border-color:var(--red)}
     .gal-actions{display:flex;gap:7px;margin-bottom:9px}
   .btn.sm{font-size:11px;padding:7px 10px;border-radius:7px;flex:1}
+  .reflog{margin-top:10px}
+  .rlog-item{font-size:11px;color:var(--muted);padding:5px 0;border-top:1px solid var(--dline)}
   .galstat{font-size:11px;color:var(--muted);min-height:14px;margin-bottom:7px}
   .heroes .del{position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:rgba(0,0,0,.72);color:#fff;font-size:12px;line-height:15px;text-align:center;font-weight:900}
   .heroes .wbx{position:absolute;top:2px;left:2px;font-size:7px;font-weight:900;color:#ffd36b;background:rgba(0,0,0,.65);padding:0 3px;border-radius:2px}
@@ -144,6 +146,14 @@
       <textarea id="srcin" placeholder="https://wideeffect.com/employer-of-record  — or describe the service"></textarea>
       <div class="row"><button class="btn" id="genbtn" onclick="generate()">Generate data sheet</button></div>
       <div id="gen_status" class="status"></div>
+    </div>
+    <div class="card">
+      <div class="vhead"><span class="dot"></span>Refine with chat</div>
+      <div class="desc">Tell Claude what to change. It edits the current sheet in place, just like the carousel.</div>
+      <textarea id="refin" placeholder="e.g. Make the headline punchier · tighten the challenge · rewrite impact for data centers" style="min-height:64px"></textarea>
+      <div class="row"><button class="btn" id="refbtn" onclick="refine()">Refine</button></div>
+      <div id="ref_status" class="status"></div>
+      <div id="ref_log" class="reflog"></div>
     </div>
     <div class="card">
       <div class="card-h">Hero image · shared gallery</div>
@@ -316,6 +326,19 @@ function drawQR(root){const box=(root||document).querySelector('.qrbox');if(!box
 function fit(){const pv=document.querySelector('.preview');if(!pv)return;const mobile=window.innerWidth<=880;const w=pv.clientWidth-(mobile?24:48);let s;if(mobile){s=w/816;}else{const h=pv.clientHeight-70;s=Math.min(w/816,h/1056);}if(!isFinite(s)||s<=0)s=w/816;document.documentElement.style.setProperty('--s',Math.min(1,s));}
 window.addEventListener('resize',fit);
 
+function rstat(m){const e=document.getElementById('ref_status');if(e)e.textContent=m;}
+function logChange(t){const el=document.getElementById('ref_log');if(!el)return;const d=document.createElement('div');d.className='rlog-item';d.textContent='• '+t;el.prepend(d);}
+async function refine(){
+  const ins=(v('refin')||'').trim();if(!ins){rstat('Type what to change first.');return;}
+  const cur={eyebrow:DS.eyebrow,headline:DS.headline,sub:DS.sub,pills:DS.pills,challenge:DS.challenge,impact:DS.impact,why:DS.why,solution:DS.solution,supports_title:DS.supports_title,supports:DS.supports,claim:DS.claim};
+  const b=document.getElementById('refbtn');b.disabled=true;const o=b.textContent;b.textContent='Refining...';rstat('Applying your change (Opus, ~15s)...');
+  try{
+    const d=await call(DS_ENDPOINT,{mode:'edit',current:cur,instruction:ins});
+    if(d&&d.content){applyContent(d.content);logChange(ins);set('refin','');rstat('Updated.');if(window.innerWidth<=880)tab('preview');}
+    else rstat('Error: '+((d&&d.error)||'unexpected response'));
+  }catch(e){rstat('Could not reach the AI service.');}
+  b.disabled=false;b.textContent=o;
+}
 async function generate(){
   const src=(v('srcin')||'').trim();if(!src){gstat('Paste a URL or describe the service first.');return;}
   const btn=document.getElementById('genbtn');btn.disabled=true;const o=btn.textContent;btn.textContent='Reading & writing...';gstat('Reading the page and writing the sheet (Opus, ~20s)...');
