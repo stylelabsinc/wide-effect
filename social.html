@@ -150,6 +150,21 @@
     .mobnav button.on{color:var(--red)}
   }
   @media print{@page{size:1080px 1350px;margin:0}.toolbar,.nav,.panel,.mobnav,.preview-tag{display:none!important}.app{display:block;height:auto}.preview{display:block!important;overflow:visible;padding:0}.slideWrap{width:1080px;height:1350px;margin:0;border-radius:0;box-shadow:none;page-break-after:always}.slideWrap .slide{transform:none}}
+
+  .stylechips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .stylechips button{font-family:inherit;font-size:12px;font-weight:900;letter-spacing:.02em;padding:9px 13px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+  .stylechips button.on{background:rgba(253,75,72,.14);border-color:rgba(253,75,72,.55);color:var(--red)}
+  .feat-grad{position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,15,23,.1) 25%,rgba(11,15,23,.93) 72%)}
+  .feat-body{position:absolute;left:70px;right:70px;bottom:84px;text-align:left}
+  .feat-name{font-size:86px;font-weight:900;line-height:1.02;letter-spacing:-.01em;margin:14px 0 8px}
+  .feat-role{font-size:34px;font-weight:700;color:var(--red)}
+  .feat-line{font-size:26px;opacity:.85;margin-top:10px}
+  .feat-quote{font-size:30px;font-weight:300;font-style:italic;line-height:1.45;margin-top:36px;opacity:.95}
+  .job-title{font-size:74px;font-weight:900;line-height:1.06;margin:16px 0 12px}
+  .job-meta{font-size:30px;font-weight:700;color:var(--red);margin-bottom:36px}
+  .job-reqs{display:flex;flex-direction:column;gap:18px;font-size:28px;line-height:1.35;text-align:left;margin:0 auto;max-width:840px}
+  .job-req{display:flex;gap:16px}.job-req .plus{color:var(--red);font-weight:900}
+  .job-cta{margin-top:46px;font-size:24px;font-weight:700;letter-spacing:.04em;opacity:.9}
 </style>
 </head>
 <body data-nav="studio">
@@ -179,6 +194,42 @@
         <div id="log" class="log"></div>
       </div>
       <div class="card">
+        <div class="card-h">Post style</div>
+        <div class="stylechips" id="stylechips">
+          <button class="on" data-st="carousel" onclick="setStyle('carousel')">5-Slide Carousel</button>
+          <button data-st="employee" onclick="setStyle('employee')">Featured Employee</button>
+          <button data-st="job" onclick="setStyle('job')">Featured Job</button>
+          <button data-st="special" onclick="setStyle('special')">Special Day</button>
+        </div>
+      </div>
+      <div class="card" id="styleFields" style="display:none">
+        <div id="sf-employee" style="display:none">
+          <div class="card-h">Featured Employee</div>
+          <label>Name</label><input type="text" id="fe_name" value="Marcus Reed" oninput="render()">
+          <label>Role / trade</label><input type="text" id="fe_role" value="Licensed Electrician" oninput="render()">
+          <label>Detail line (years, project, location)</label><input type="text" id="fe_line" value="12 years in the trade. Data center builds across 6 states." oninput="render()">
+          <label>Quote</label><textarea id="fe_quote" rows="3" oninput="render()">The best crews make hard days look easy. That is what we bring to every site.</textarea>
+          <div class="card-h" style="margin-top:12px">Photo comes from the cover image below.</div>
+        </div>
+        <div id="sf-job" style="display:none">
+          <div class="card-h">Featured Job</div>
+          <label>Job title</label><input type="text" id="fj_title" value="Journey-Level **Electricians**" oninput="render()">
+          <label>Location line</label><input type="text" id="fj_loc" value="Phoenix, AZ" oninput="render()">
+          <label>Pay / type line</label><input type="text" id="fj_pay" value="Full time. Prevailing wage. Per diem available." oninput="render()">
+          <label>Requirements (one per line)</label><textarea id="fj_reqs" rows="4" oninput="render()">State license in good standing
+Commercial or industrial build experience
+OSHA 30 preferred
+Able to start within 2 weeks</textarea>
+        </div>
+        <div id="sf-special" style="display:none">
+          <div class="card-h">Special Day</div>
+          <label>Occasion (eyebrow)</label><input type="text" id="fs_day" value="Independence Day" oninput="render()">
+          <label>Headline (line break = new line, **stars** = red)</label><textarea id="fs_h" rows="3" oninput="render()">Built by the people
+who **build America.**</textarea>
+          <label>Message line</label><input type="text" id="fs_msg" value="Happy Fourth of July from the Wide Effect team." oninput="render()">
+        </div>
+      </div>
+      <div class="card">
         <div class="card-h">Destination URL (drives the QR)</div>
         <input type="text" id="ai_url" value="https://wideeffect.com/construction-staffing-solutions" oninput="syncUrl()">
         <div class="card-h" style="margin-top:14px">Cover image</div>
@@ -190,7 +241,7 @@
         <div class="saverow"><input type="text" id="posttitle" placeholder="Name this post"><button class="mini" id="savebtn" onclick="savePost()">Save</button></div>
         <div class="saverow2" id="saverow2" style="display:none"><button class="mini ghost" onclick="saveAsNew()">Save as new</button><button class="mini ghost" onclick="newPost()">Start new</button></div>
       </div>
-      <details class="card adv"><summary>Advanced — edit slide text</summary><div class="advbody">
+      <details class="card adv" id="advCarousel"><summary>Advanced — edit slide text</summary><div class="advbody">
         <div class="blk"><div class="lbl">1 · Cover</div><label>Eyebrow</label><input type="text" id="c_eb" oninput="render()"><label>Headline (line break = new line · **stars** = red)</label><textarea id="c_h" rows="3" oninput="render()"></textarea><label>Sub line</label><input type="text" id="c_sub" oninput="render()"></div>
         <div class="blk"><div class="lbl">2 · Problem</div><label>Layout</label><select id="s2_type" onchange="render()"><option value="plus">Plus bullets</option><option value="statement">Statement + kicker</option></select><label>Eyebrow</label><input type="text" id="s2_eb" oninput="render()"><label>Headline</label><textarea id="s2_h" rows="2" oninput="render()"></textarea><div data-when="plus"><label>Bullets (one per line)</label><textarea id="s2_items" rows="4" oninput="render()"></textarea><label>Closing line</label><input type="text" id="s2_close" oninput="render()"></div><div data-when="statement" style="display:none"><label>Body</label><textarea id="s2_body" rows="3" oninput="render()"></textarea><label>Kicker</label><input type="text" id="s2_kick" oninput="render()"></div></div>
         <div class="blk"><div class="lbl">3 · Cost</div><label>Eyebrow</label><input type="text" id="s3_eb" oninput="render()"><label>Headline</label><textarea id="s3_h" rows="2" oninput="render()"></textarea><label>Body</label><textarea id="s3_body" rows="3" oninput="render()"></textarea><label>Kicker</label><input type="text" id="s3_kick" oninput="render()"></div>
@@ -302,8 +353,47 @@ function pick(i){SEL=i;buildGrid();coverThumb();render();}
 function toggleWhen(){const t2=v('s2_type');document.querySelectorAll('[data-when]').forEach(d=>d.style.display=d.getAttribute('data-when')===t2?'':'none');const t4=v('s4_type');document.querySelectorAll('[data-when4]').forEach(d=>d.style.display=d.getAttribute('data-when4')===t4?'':'none');}
 function syncUrl(){let u=v('ai_url').replace(/^https?:\/\//,'').replace(/\/$/,'');const i=u.indexOf('/');if(i>0){set('s5_u1',u.slice(0,i+1));set('s5_u2',u.slice(i+1));}else{set('s5_u1',u);set('s5_u2','');}set('s5_url',v('ai_url'));render();}
 
+
+window.STYLE='carousel';
+function setStyle(st){window.STYLE=st;
+  document.querySelectorAll('#stylechips button').forEach(b=>b.classList.toggle('on',b.getAttribute('data-st')===st));
+  const single=st!=='carousel';
+  const sf=document.getElementById('styleFields');if(sf)sf.style.display=single?'':'none';
+  ['employee','job','special'].forEach(k=>{const el=document.getElementById('sf-'+k);if(el)el.style.display=(st===k)?'':'none';});
+  const adv=document.getElementById('advCarousel');if(adv)adv.style.display=single?'none':'';
+  render();
+}
+function collectSingle(){
+  if(window.STYLE==='employee')return{style:'employee',name:v('fe_name'),role:v('fe_role'),line:v('fe_line'),quote:v('fe_quote'),url:v('ai_url')};
+  if(window.STYLE==='job')return{style:'job',title:v('fj_title'),loc:v('fj_loc'),pay:v('fj_pay'),reqs:lines(v('fj_reqs')),url:v('ai_url')};
+  return{style:'special',day:v('fs_day'),headline:v('fs_h'),msg:v('fs_msg'),url:v('ai_url')};
+}
+function applySingle(d){
+  if(d.style==='employee'){set('fe_name',d.name||'');set('fe_role',d.role||'');set('fe_line',d.line||'');set('fe_quote',d.quote||'');}
+  else if(d.style==='job'){set('fj_title',d.title||'');set('fj_loc',d.loc||'');set('fj_pay',d.pay||'');set('fj_reqs',(d.reqs||[]).join('\n'));}
+  else{set('fs_day',d.day||'');set('fs_h',d.headline||'');set('fs_msg',d.msg||'');}
+  if(d.url)set('ai_url',d.url);
+  setStyle(d.style);
+}
+function renderSingle(){
+  const photo=window.GALLERY[SEL]?window.GALLERY[SEL].src:'';
+  let slide;
+  if(window.STYLE==='employee'){
+    slide=`<div class="slide ch-cover"><div class="cover-bg" style="background-image:url(${photo})"></div><div class="feat-grad"></div><div class="slide-header">${LOGO}</div><div class="feat-body"><div class="eyebrow">Featured Craft Professional</div><h1 class="feat-name">${esc(v('fe_name'))}</h1><div class="feat-role">${esc(v('fe_role'))}</div><div class="feat-line">${noorphan(v('fe_line'))}</div><div class="feat-quote">&ldquo;${noorphan(v('fe_quote'))}&rdquo;</div></div></div>`;
+  }else if(window.STYLE==='job'){
+    const reqs=lines(v('fj_reqs')).map(x=>`<div class="job-req"><span class="plus">+</span><span>${noorphan(x)}</span></div>`).join('');
+    slide=`<div class="slide"><div class="slide-header">${LOGO}</div><div class="body-center"><div class="eyebrow">We&rsquo;re Hiring &middot; ${esc(v('fj_loc'))}</div><h1 class="job-title">${headline(v('fj_title'))}</h1><div class="job-meta">${esc(v('fj_pay'))}</div><div class="job-reqs">${reqs}</div><div class="job-cta">Apply at wideeffect.com or call (833) 493-5627</div></div></div>`;
+  }else{
+    slide=`<div class="slide ch-cover"><div class="cover-bg" style="background-image:url(${photo})"></div><div class="cover-grad"></div><div class="slide-header">${LOGO}</div><div class="cover-body"><div class="eyebrow">${esc(v('fs_day'))}</div><h1 class="cover-h1">${headline(v('fs_h'))}</h1><p class="cover-sub">${noorphan(v('fs_msg'))}</p></div></div>`;
+  }
+  window.__SLIDES=[slide];
+  document.getElementById('deck').innerHTML=`<div class="slideWrap">${slide}</div>`;
+  fitScale();
+}
+
 function render(){
   toggleWhen();
+  if(window.STYLE&&window.STYLE!=='carousel'){renderSingle();return;}
   const cover=window.GALLERY[SEL]?window.GALLERY[SEL].src:'';
   let s2;
   if(v('s2_type')==='plus'){const items=lines(v('s2_items')).map(x=>`<div class="math-item"><span class="plus">+</span><span>${noorphan(x)}</span></div>`).join('');const close=v('s2_close')?`<div class="math-close">${noorphan(v('s2_close'))}</div>`:'';s2=`<div class="body-center"><div class="eyebrow">${esc(v('s2_eb'))}</div><h2 class="arg-h">${headline(v('s2_h'))}</h2><div class="math-list">${items}</div>${close}</div>`;}
@@ -327,6 +417,7 @@ function fitScale(){const pv=document.querySelector('.preview');if(!pv)return;co
 window.addEventListener('resize',fitScale);
 
 function applyJSON(j,url){
+  if(j&&j.style&&j.style!=='carousel'){applySingle(j);if(url)set('ai_url',url);return;}
   const c=j.cover||{};set('c_eb',c.eyebrow);set('c_h',c.headline);set('c_sub',c.sub);
   const p=j.problem||{};set('s2_type',p.type||'plus');set('s2_eb',p.eyebrow);set('s2_h',p.headline);set('s2_items',(p.items||[]).join('\n'));set('s2_close',p.close);set('s2_body',p.body);set('s2_kick',p.kicker);
   const co=j.cost||{};set('s3_eb',co.eyebrow);set('s3_h',co.headline);set('s3_body',co.body);set('s3_kick',co.kicker);
@@ -335,6 +426,7 @@ function applyJSON(j,url){
   set('ai_url',ct.url||url||v('ai_url'));syncUrl();
 }
 function collectJSON(){
+  if(window.STYLE&&window.STYLE!=='carousel'){return collectSingle();}
   const prob=v('s2_type')==='plus'?{type:'plus',eyebrow:v('s2_eb'),headline:v('s2_h'),items:lines(v('s2_items')),close:v('s2_close')}:{type:'statement',eyebrow:v('s2_eb'),headline:v('s2_h'),body:v('s2_body'),kicker:v('s2_kick')};
   const sol=v('s4_type')==='lines'?{type:'lines',eyebrow:v('s4_eb'),headline:v('s4_h'),body:v('s4_body'),lines:lines(v('s4_lines'))}:{type:'statement',eyebrow:v('s4_eb'),headline:v('s4_h'),body:v('s4_body'),kicker:v('s4_kick')};
   return {cover:{eyebrow:v('c_eb'),headline:v('c_h'),sub:v('c_sub')},problem:prob,cost:{eyebrow:v('s3_eb'),headline:v('s3_h'),body:v('s3_body'),kicker:v('s3_kick')},solution:sol,cta:{eyebrow:v('s5_eb'),headline:v('s5_h'),sub:v('s5_sub'),url:v('ai_url'),help:v('s5_help')}};
@@ -348,7 +440,7 @@ async function aiSubmit(){
   const url=(v('ai_url')||'').trim()||'https://wideeffect.com/construction-staffing-solutions';
   const editing=window.HAS_DECK;const btn=document.getElementById('go');btn.disabled=true;const ol=btn.textContent;
   btn.textContent=editing?'Updating...':'Building...';status(editing?'Applying your change (Opus)...':'Building your deck (Opus)...');
-  const payload=editing?{mode:'edit',instruction:text,url:url,current:collectJSON()}:{src:text,url:url};
+  const payload=editing?{mode:'edit',instruction:text,url:url,current:collectJSON(),style:window.STYLE}:{src:text,url:url,style:window.STYLE};
   try{const res=await fetch(AI_ENDPOINT,{method:'POST',headers:{'content-type':'application/json','x-we-app':APP_KEY},body:JSON.stringify(payload)});const data=await res.json();
     if(data&&data.slides){applyJSON(data.slides,url);window.HAS_DECK=true;if(!editing){window.CURRENT_ID=null;window.CURRENT_TITLE='';set('posttitle','');reflectSave();}addLog((editing?'\u270e ':'\u2605 ')+text);document.getElementById('aiprompt').value='';updatePromptUI();status('Done.');if(window.innerWidth<=880)switchView('preview');}
     else status('Error: '+((data&&data.error)||'unexpected response'));
@@ -394,7 +486,7 @@ async function downloadPDF(){
   try{if(document.fonts&&document.fonts.ready){await document.fonts.ready;}
     const wrap=document.createElement('div');wrap.style.cssText='position:fixed;left:-100000px;top:0;width:1080px;background:#0b0f17';wrap.innerHTML=(window.__SLIDES||[]).join('');document.body.appendChild(wrap);drawQR(wrap);
     await new Promise(r=>setTimeout(r,350));
-    const slides=wrap.querySelectorAll('.slide');const jsPDF=window.jspdf.jsPDF;const pdf=new jsPDF({orientation:'portrait',unit:'px',format:[1080,1350]});
+    const slides=wrap.querySelectorAll('.slide');if(window.STYLE&&window.STYLE!=='carousel'&&slides.length===1){const canvas=await html2canvas(slides[0],{width:1080,height:1350,scale:2,backgroundColor:'#0b0f17',useCORS:true,logging:false});const a=document.createElement('a');a.download='wide-effect-'+window.STYLE+'.png';a.href=canvas.toDataURL('image/png');a.click();document.body.removeChild(wrap);status2('Downloaded PNG.');setTimeout(()=>status2(''),2500);btn.disabled=false;btn.textContent=old;return;}const jsPDF=window.jspdf.jsPDF;const pdf=new jsPDF({orientation:'portrait',unit:'px',format:[1080,1350]});
     for(let i=0;i<slides.length;i++){status2('Slide '+(i+1)+'/'+slides.length+'...');const canvas=await html2canvas(slides[i],{width:1080,height:1350,scale:2,backgroundColor:'#0b0f17',useCORS:true,logging:false});const img=canvas.toDataURL('image/jpeg',0.95);if(i>0)pdf.addPage([1080,1350],'portrait');pdf.addImage(img,'JPEG',0,0,1080,1350);}
     document.body.removeChild(wrap);pdf.save('wide-effect-carousel.pdf');status2('Downloaded.');setTimeout(()=>status2(''),2500);
   }catch(e){status2('Export failed: '+e);}
