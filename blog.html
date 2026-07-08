@@ -1,0 +1,299 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wide Effect — Blog Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0b0f17;--red:#fd4b48;--steel:#5a6473;--line:rgba(255,255,255,.1);--alt:#f5f5f7;--panel:#0f141d;--card:#151c27;--muted:rgba(255,255,255,.5);--field:#0c111a}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{font-family:'Lato',system-ui,sans-serif;background:#080b11;color:#fff;min-height:100%}
+.toolbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;padding:11px 16px;background:#0b0f17;border-bottom:1px solid var(--line)}
+.toolbar .mark{width:26px;height:26px;background:var(--red);transform:skewX(-12deg);display:flex;align-items:center;justify-content:center;font-weight:900;flex-shrink:0}
+.toolbar h1{font-size:13px;font-weight:900}
+.toolbar .sub{font-size:9px;color:var(--muted);font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.toolbar .spacer{flex:1}
+.toolbar .stat{font-size:11px;color:var(--muted);font-weight:700}
+.btn{font-family:inherit;font-size:13px;font-weight:900;border:none;border-radius:8px;padding:10px 15px;cursor:pointer;background:var(--red);color:#fff}
+.btn:hover{background:#e63a37}
+.btn[disabled]{opacity:.6;cursor:wait}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:#fff}
+.btn.sm{font-size:11px;padding:8px 11px;border-radius:7px}
+.app{display:grid;grid-template-columns:minmax(330px,400px) 1fr;min-height:calc(100vh - 49px)}
+.panel{background:var(--panel);border-right:1px solid var(--line);padding:16px;overflow-y:auto;max-height:calc(100vh - 49px)}
+.panel::-webkit-scrollbar{width:9px}.panel::-webkit-scrollbar-thumb{background:#28313f;border-radius:5px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:13px}
+.card.hot{border-color:rgba(253,75,72,.4)}
+.vhead{font-size:13px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.vhead .dot{width:8px;height:8px;border-radius:50%;background:var(--red)}
+.desc{font-size:12px;color:var(--muted);margin:0 0 11px;line-height:1.5}
+.card-h{font-size:11px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
+textarea,input[type=text]{width:100%;font-family:inherit;font-size:14px;color:#fff;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:10px;resize:vertical}
+textarea:focus,input:focus{outline:none;border-color:var(--red)}
+#topicin{min-height:80px}
+label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:11px 0 5px}
+.row{display:flex;gap:8px;margin-top:10px}.row .btn{flex:1}
+.status{font-size:12px;font-weight:700;margin-top:9px;min-height:15px;color:var(--muted)}
+.editing-tag{font-size:11px;font-weight:700;color:var(--red);background:rgba(253,75,72,.1);border:1px solid rgba(253,75,72,.32);border-radius:6px;padding:6px 9px;margin-bottom:8px;display:none}
+.saverow{display:flex;gap:8px}.saverow input{flex:1}
+.saverow2{display:flex;gap:7px;margin-top:8px}.saverow2 .btn{flex:1}
+.posts .post{background:var(--field);border:1px solid var(--line);border-radius:9px;display:flex;align-items:center;gap:8px;padding:11px 12px}
+.posts .post+.post{margin-top:8px}
+.posts .ptitle{flex:1;font-size:13px;font-weight:700;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.posts .ptitle:hover{color:var(--red)}
+.posts .x{background:none;border:none;color:var(--muted);font-size:19px;cursor:pointer;line-height:1;padding:4px}
+.posts .x:hover{color:var(--red)}
+.empty{font-size:12px;color:var(--muted);padding:6px 2px}
+/* chat */
+.thread{max-height:230px;overflow-y:auto;display:flex;flex-direction:column;gap:7px;margin-bottom:9px}
+.bub{font-size:12.5px;line-height:1.5;padding:8px 11px;border-radius:10px;max-width:95%}
+.bub.u{align-self:flex-end;background:var(--red);color:#fff;border-bottom-right-radius:3px}
+.bub.a{align-self:flex-start;background:var(--field);border:1px solid var(--line);border-bottom-left-radius:3px}
+.bub.t{align-self:flex-start;color:var(--muted);font-style:italic;background:transparent;padding:2px 4px}
+.chatrow{display:flex;gap:7px}
+.chatrow input{flex:1}
+.chatrow .btn{flex:0 0 auto}
+/* preview column */
+.preview{padding:18px 20px 60px;overflow-y:auto;max-height:calc(100vh - 49px)}
+.preview::-webkit-scrollbar{width:9px}.preview::-webkit-scrollbar-thumb{background:#28313f;border-radius:5px}
+.pv-empty{font-size:13px;color:var(--muted);padding:30px 10px;text-align:center}
+/* seo panel */
+.seo{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 auto 16px;max-width:820px;display:none}
+.seo .sh{font-size:11px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.seo .sh .dot{width:8px;height:8px;border-radius:50%;background:var(--red)}
+.seo .fld{margin-bottom:9px}
+.seo .fl{font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:3px}
+.seo .fl .cc{font-weight:900}
+.seo .cc.ok{color:#7ee2a8}.seo .cc.bad{color:var(--red)}
+.seo .fv{font-size:13px;line-height:1.45;background:var(--field);border:1px solid var(--line);border-radius:7px;padding:7px 10px;word-break:break-word}
+.seo .fv.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#9fd0ff}
+.seo .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.seo .chip{font-size:10.5px;font-weight:700;background:var(--field);border:1px solid var(--line);border-radius:99px;padding:4px 10px;color:rgba(255,255,255,.8)}
+.seo .chip.pk{border-color:rgba(253,75,72,.5);color:#fff;background:rgba(253,75,72,.12)}
+/* article page */
+.page{background:#fff;color:var(--ink);max-width:820px;margin:0 auto;border-radius:6px;padding:54px 58px 60px;font-family:'Lato',sans-serif}
+.page .eyebrow{font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--red);display:inline-flex;align-items:center;gap:10px;margin-bottom:14px}
+.page .eyebrow::before{content:'';width:24px;height:1px;background:var(--red)}
+.page h1{font-size:34px;font-weight:900;line-height:1.06;letter-spacing:-.012em;margin-bottom:12px;text-wrap:balance}
+.page .dek{font-size:16.5px;line-height:1.5;color:#3c4452;font-weight:400;margin-bottom:22px;text-wrap:pretty}
+.page .tldr{background:var(--alt);border-left:4px solid var(--red);border-radius:0 8px 8px 0;padding:15px 18px;margin-bottom:28px}
+.page .tldr .tl-h{font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--red);margin-bottom:6px}
+.page .tldr p{font-size:14px;line-height:1.55;color:#1c2330}
+.page h2{font-size:21px;font-weight:900;line-height:1.15;margin:30px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--red);display:inline-block}
+.page section p{font-size:14.5px;line-height:1.66;color:#2a313d;margin-bottom:12px;text-wrap:pretty}
+.page .takes{background:var(--ink);color:#fff;border-radius:10px;padding:22px 26px;margin:32px 0}
+.page .takes .tk-h{font-size:11px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--red);margin-bottom:12px}
+.page .takes li{list-style:none;font-size:13.5px;line-height:1.5;padding-left:16px;position:relative;margin-bottom:9px;color:rgba(255,255,255,.92)}
+.page .takes li::before{content:'';position:absolute;left:0;top:7px;width:6px;height:6px;background:var(--red);transform:rotate(45deg)}
+.page .faq-h{font-size:21px;font-weight:900;margin:32px 0 14px;padding-bottom:6px;border-bottom:2px solid var(--red);display:inline-block}
+.page .faq-q{font-size:15px;font-weight:900;margin:16px 0 5px}
+.page .faq-a{font-size:14px;line-height:1.6;color:#2a313d;text-wrap:pretty}
+.page .cta{margin-top:34px;background:var(--alt);border-radius:10px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.page .cta p{font-size:14px;line-height:1.55;color:#1c2330;flex:1;min-width:220px}
+.page .cta a{font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;background:var(--red);color:#fff;text-decoration:none;border-radius:8px;padding:12px 18px;white-space:nowrap}
+@media(max-width:900px){
+ .app{display:block}
+ .panel{max-height:none;border-right:none;border-bottom:1px solid var(--line)}
+ .preview{max-height:none;padding:14px 10px 60px}
+ .page{padding:30px 22px 40px}
+ .page h1{font-size:26px}
+ .toolbar .hidem{display:none}
+}
+</style></head>
+<body>
+<div class="toolbar">
+  <div class="mark">W</div>
+  <div><h1>Blog Studio</h1><div class="sub hidem">Wide Effect · SEO / AEO / GEO</div></div>
+  <div class="spacer"></div>
+  <div class="stat" id="topstat"></div>
+  <button class="btn ghost sm" onclick="copyMeta()">Copy Meta</button>
+  <button class="btn ghost sm" onclick="copyMD()">Copy Markdown</button>
+  <button class="btn sm" onclick="copyHTML()">Copy HTML</button>
+</div>
+<div class="app">
+  <div class="panel">
+    <div class="card hot">
+      <div class="vhead"><span class="dot"></span>Build a blog post</div>
+      <p class="desc">Give Claude a topic (or paste a source URL) and an optional target keyword. It writes a full post structured for search engines, answer engines, and AI citation.</p>
+      <label>Topic or brief</label>
+      <textarea id="topicin" placeholder="e.g. Why data center construction schedules slip without licensed electricians on the bench"></textarea>
+      <label>Or source URL</label>
+      <input type="text" id="urlin" placeholder="https://wideeffect.com/...">
+      <label>Target keyword (optional)</label>
+      <input type="text" id="kwin" placeholder="e.g. data center staffing">
+      <div class="row"><button class="btn" id="gen" onclick="gen()">Generate</button></div>
+      <div class="status" id="genstat"></div>
+    </div>
+    <div class="card">
+      <div class="vhead"><span class="dot"></span>Refine with Claude</div>
+      <div class="thread" id="thread"><div class="empty">Generate a post first, then talk to it here.</div></div>
+      <div class="chatrow"><input type="text" id="chat_in" placeholder="Make the FAQ tougher..." onkeydown="if(event.key==='Enter')chatSend()"><button class="btn" id="chat_btn" onclick="chatSend()">Send</button></div>
+    </div>
+    <div class="card">
+      <div class="vhead"><span class="dot"></span>Save</div>
+      <div class="editing-tag" id="edittag"></div>
+      <div class="saverow"><input type="text" id="savetitle" placeholder="Post title..."><button class="btn" onclick="save(false)">Save</button></div>
+      <div class="saverow2" id="savenewrow" style="display:none"><button class="btn ghost" onclick="save(true)">Save as new</button></div>
+      <div class="status" id="savestat"></div>
+    </div>
+    <div class="card">
+      <div class="vhead"><span class="dot"></span>Saved posts</div>
+      <div class="posts" id="postlist"><div class="empty">Loading...</div></div>
+    </div>
+  </div>
+  <div class="preview">
+    <div class="seo" id="seo">
+      <div class="sh"><span class="dot"></span>Search optimization</div>
+      <div class="fld"><div class="fl"><span>Slug</span></div><div class="fv mono" id="s_slug"></div></div>
+      <div class="fld"><div class="fl"><span>Meta title</span><span class="cc" id="s_mtc"></span></div><div class="fv" id="s_mt"></div></div>
+      <div class="fld"><div class="fl"><span>Meta description</span><span class="cc" id="s_mdc"></span></div><div class="fv" id="s_md"></div></div>
+      <div class="fld"><div class="fl"><span>Keywords</span></div><div class="chips" id="s_kw"></div></div>
+    </div>
+    <div class="pv-empty" id="pv_empty">Your blog post renders here at full article width.</div>
+    <div class="page" id="page" style="display:none"></div>
+  </div>
+</div>
+<script>
+const FN='https://ubvoaoyqcdhcatsvqsdz.supabase.co/functions/v1/';
+const APP_KEY='we-bomb-pk-3Jx72Qa9Lm';
+let BLOG=null, EDIT_ID=null, THREAD=[];
+function el(id){return document.getElementById(id);}
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+async function call(fn,body){const r=await fetch(FN+fn,{method:'POST',headers:{'content-type':'application/json','x-we-app':APP_KEY},body:JSON.stringify(body)});return r.json();}
+
+/* ---------- render ---------- */
+function paras(s){return (s||'').split(/\n\n+/).map(p=>'<p>'+esc(p).replace(/\n/g,'<br>')+'</p>').join('');}
+function render(){
+  if(!BLOG){el('page').style.display='none';el('seo').style.display='none';el('pv_empty').style.display='block';return;}
+  el('pv_empty').style.display='none';
+  const b=BLOG;
+  /* seo panel */
+  el('seo').style.display='block';
+  el('s_slug').textContent='/'+(b.slug||'');
+  el('s_mt').textContent=b.meta_title||'';
+  const mtl=(b.meta_title||'').length;el('s_mtc').textContent=mtl+' / 60';el('s_mtc').className='cc '+(mtl>0&&mtl<=60?'ok':'bad');
+  el('s_md').textContent=b.meta_description||'';
+  const mdl=(b.meta_description||'').length;el('s_mdc').textContent=mdl+' / 155';el('s_mdc').className='cc '+(mdl>=120&&mdl<=160?'ok':'bad');
+  el('s_kw').innerHTML=(b.primary_keyword?'<span class="chip pk">'+esc(b.primary_keyword)+'</span>':'')+(b.keywords||[]).map(k=>'<span class="chip">'+esc(k)+'</span>').join('');
+  /* article */
+  let h='<div class="eyebrow">Wide Effect Blog</div>';
+  h+='<h1>'+esc(b.title)+'</h1>';
+  if(b.dek)h+='<p class="dek">'+esc(b.dek)+'</p>';
+  if(b.tldr)h+='<div class="tldr"><div class="tl-h">The short answer</div><p>'+esc(b.tldr)+'</p></div>';
+  (b.sections||[]).forEach(s=>{h+='<section><h2>'+esc(s.h2)+'</h2>'+paras(s.body)+'</section>';});
+  if(b.takeaways&&b.takeaways.length){h+='<div class="takes"><div class="tk-h">Key takeaways</div><ul>'+b.takeaways.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul></div>';}
+  if(b.faq&&b.faq.length){h+='<div class="faq-h">Frequently asked questions</div>'+b.faq.map(f=>'<div class="faq-q">'+esc(f.q)+'</div><p class="faq-a">'+esc(f.a)+'</p>').join('');}
+  if(b.cta)h+='<div class="cta"><p>'+esc(b.cta)+'</p><a href="'+esc(b.cta_url||'https://wideeffect.com')+'" target="_blank" rel="noopener">Learn more</a></div>';
+  el('page').innerHTML=h;el('page').style.display='block';
+  if(!el('savetitle').value)el('savetitle').value=b.title||'';
+}
+
+/* ---------- generate ---------- */
+async function gen(){
+  const topic=el('topicin').value.trim(), url=el('urlin').value.trim(), kw=el('kwin').value.trim();
+  if(!topic&&!url){el('genstat').textContent='Give me a topic or a URL.';return;}
+  el('gen').disabled=true;el('genstat').textContent='Writing... this takes 30-60 seconds.';
+  try{
+    const d=await call('blog-ai',{topic:topic,url:url,keyword:kw});
+    if(d.error){el('genstat').textContent=d.error;el('gen').disabled=false;return;}
+    BLOG=d.blog;EDIT_ID=null;el('edittag').style.display='none';el('savenewrow').style.display='none';el('savetitle').value=BLOG.title||'';
+    THREAD=[];if(d.reply)THREAD.push({role:'a',text:d.reply});
+    paintThread();render();
+    el('genstat').textContent='Done. Refine it in the chat or save it.';
+  }catch(e){el('genstat').textContent='Generation failed. Try again.';}
+  el('gen').disabled=false;
+}
+
+/* ---------- chat editing ---------- */
+function paintThread(){
+  const box=el('thread');
+  if(!THREAD.length){box.innerHTML='<div class="empty">Generate a post first, then talk to it here.</div>';return;}
+  box.innerHTML=THREAD.map(m=>m.role==='typing'?'<div class="bub t">Claude is thinking...</div>':'<div class="bub '+(m.role==='u'?'u':'a')+'">'+esc(m.text)+'</div>').join('');
+  box.scrollTop=box.scrollHeight;
+}
+async function chatSend(){
+  const inp=el('chat_in');const msg=inp.value.trim();
+  if(!msg)return;
+  if(!BLOG){THREAD.push({role:'u',text:msg},{role:'a',text:'Generate a post first, then I can work on it with you.'});paintThread();inp.value='';return;}
+  inp.value='';THREAD.push({role:'u',text:msg},{role:'typing'});paintThread();el('chat_btn').disabled=true;
+  try{
+    const hist=THREAD.filter(m=>m.role!=='typing').slice(-8).map(m=>({role:m.role==='u'?'user':'assistant',text:m.text}));
+    const d=await call('blog-ai',{mode:'edit',current:BLOG,instruction:msg,history:hist});
+    THREAD=THREAD.filter(m=>m.role!=='typing');
+    if(d.error){THREAD.push({role:'a',text:'Hit a snag: '+d.error});}
+    else{BLOG=d.blog||BLOG;THREAD.push({role:'a',text:d.reply||'Done.'});render();}
+  }catch(e){THREAD=THREAD.filter(m=>m.role!=='typing');THREAD.push({role:'a',text:'Request failed. Try again.'});}
+  paintThread();el('chat_btn').disabled=false;
+}
+
+/* ---------- save / load ---------- */
+async function save(asNew){
+  if(!BLOG){el('savestat').textContent='Nothing to save yet.';return;}
+  el('savestat').textContent='Saving...';
+  try{
+    const body={action:'save',title:el('savetitle').value.trim()||BLOG.title||'Untitled',url:el('urlin').value.trim()||null,content:BLOG};
+    if(EDIT_ID&&!asNew)body.id=EDIT_ID;
+    const d=await call('blog-posts',body);
+    if(d&&d.post){EDIT_ID=d.post.id;el('edittag').textContent='Editing: '+d.post.title;el('edittag').style.display='block';el('savenewrow').style.display='flex';el('savestat').textContent='Saved.';loadList();}
+    else el('savestat').textContent='Save failed.';
+  }catch(e){el('savestat').textContent='Save failed.';}
+}
+async function loadList(){
+  try{
+    const d=await call('blog-posts',{action:'list'});
+    const posts=d.posts||[];
+    el('postlist').innerHTML=posts.length?posts.map(p=>'<div class="post"><div class="ptitle" onclick="openPost(\''+p.id+'\')">'+esc(p.title)+'</div><button class="x" onclick="delPost(\''+p.id+'\')">&times;</button></div>').join(''):'<div class="empty">No saved posts yet.</div>';
+  }catch(e){el('postlist').innerHTML='<div class="empty">Could not load posts.</div>';}
+}
+async function openPost(id){
+  try{
+    const d=await call('blog-posts',{action:'get',id:id});
+    if(!d||!d.post)return;
+    BLOG=d.post.content;EDIT_ID=d.post.id;
+    el('savetitle').value=d.post.title||'';el('edittag').textContent='Editing: '+(d.post.title||'');el('edittag').style.display='block';el('savenewrow').style.display='flex';
+    THREAD=[{role:'a',text:'Loaded "'+(d.post.title||'post')+'". What do you want to change?'}];paintThread();render();
+  }catch(e){}
+}
+async function delPost(id){
+  if(!confirm('Delete this post?'))return;
+  try{await call('blog-posts',{action:'delete',id:id});if(EDIT_ID===id){EDIT_ID=null;el('edittag').style.display='none';el('savenewrow').style.display='none';}loadList();}catch(e){}
+}
+
+/* ---------- exports ---------- */
+function flash(msg){el('topstat').textContent=msg;setTimeout(()=>{el('topstat').textContent='';},2200);}
+function jsonld(b){
+  const art={"@context":"https://schema.org","@type":"Article","headline":b.title,"description":b.meta_description,"author":{"@type":"Organization","name":"Wide Effect Talent Solutions","url":"https://wideeffect.com"},"publisher":{"@type":"Organization","name":"Wide Effect Talent Solutions","url":"https://wideeffect.com"},"keywords":[b.primary_keyword].concat(b.keywords||[]).filter(Boolean).join(', ')};
+  const out=[art];
+  if(b.faq&&b.faq.length)out.push({"@context":"https://schema.org","@type":"FAQPage","mainEntity":b.faq.map(f=>({"@type":"Question","name":f.q,"acceptedAnswer":{"@type":"Answer","text":f.a}}))});
+  return out.map(o=>'<script type="application/ld+json">'+JSON.stringify(o)+'<\/script>').join('\n');
+}
+function exportHTML(b){
+  let h='<!-- slug: /'+(b.slug||'')+' -->\n<!-- meta title: '+(b.meta_title||'')+' -->\n<!-- meta description: '+(b.meta_description||'')+' -->\n';
+  h+='<article class="we-blog">\n<h1>'+esc(b.title)+'</h1>\n';
+  if(b.dek)h+='<p class="we-dek"><em>'+esc(b.dek)+'</em></p>\n';
+  if(b.tldr)h+='<div class="we-tldr"><strong>The short answer:</strong> '+esc(b.tldr)+'</div>\n';
+  (b.sections||[]).forEach(s=>{h+='<h2>'+esc(s.h2)+'</h2>\n'+(s.body||'').split(/\n\n+/).map(p=>'<p>'+esc(p)+'</p>').join('\n')+'\n';});
+  if(b.takeaways&&b.takeaways.length)h+='<h2>Key takeaways</h2>\n<ul>\n'+b.takeaways.map(t=>'<li>'+esc(t)+'</li>').join('\n')+'\n</ul>\n';
+  if(b.faq&&b.faq.length){h+='<h2>Frequently asked questions</h2>\n'+b.faq.map(f=>'<h3>'+esc(f.q)+'</h3>\n<p>'+esc(f.a)+'</p>').join('\n')+'\n';}
+  if(b.cta)h+='<p class="we-cta">'+esc(b.cta)+' <a href="'+esc(b.cta_url||'https://wideeffect.com')+'">Learn more</a></p>\n';
+  h+='</article>\n'+jsonld(b);
+  return h;
+}
+function exportMD(b){
+  let m='---\nslug: /'+(b.slug||'')+'\nmeta_title: "'+(b.meta_title||'')+'"\nmeta_description: "'+(b.meta_description||'')+'"\nkeywords: '+[b.primary_keyword].concat(b.keywords||[]).filter(Boolean).join(', ')+'\n---\n\n';
+  m+='# '+b.title+'\n\n';
+  if(b.dek)m+='*'+b.dek+'*\n\n';
+  if(b.tldr)m+='> **The short answer:** '+b.tldr+'\n\n';
+  (b.sections||[]).forEach(s=>{m+='## '+s.h2+'\n\n'+s.body+'\n\n';});
+  if(b.takeaways&&b.takeaways.length)m+='## Key takeaways\n\n'+b.takeaways.map(t=>'- '+t).join('\n')+'\n\n';
+  if(b.faq&&b.faq.length)m+='## Frequently asked questions\n\n'+b.faq.map(f=>'### '+f.q+'\n\n'+f.a).join('\n\n')+'\n\n';
+  if(b.cta)m+=b.cta+' [Learn more]('+(b.cta_url||'https://wideeffect.com')+')\n';
+  return m;
+}
+function copyIt(text,label){navigator.clipboard.writeText(text).then(()=>flash(label+' copied.')).catch(()=>flash('Copy failed.'));}
+function copyHTML(){if(!BLOG){flash('Nothing to copy yet.');return;}copyIt(exportHTML(BLOG),'HTML');}
+function copyMD(){if(!BLOG){flash('Nothing to copy yet.');return;}copyIt(exportMD(BLOG),'Markdown');}
+function copyMeta(){if(!BLOG){flash('Nothing to copy yet.');return;}copyIt('Slug: /'+(BLOG.slug||'')+'\nMeta title: '+(BLOG.meta_title||'')+'\nMeta description: '+(BLOG.meta_description||'')+'\nPrimary keyword: '+(BLOG.primary_keyword||'')+'\nKeywords: '+(BLOG.keywords||[]).join(', '),'Meta');}
+
+loadList();
+</script>
+</body></html>
