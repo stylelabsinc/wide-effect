@@ -1,0 +1,202 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wide Effect — AQL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0b0f17;--red:#fd4b48;--line:rgba(255,255,255,.1);--panel:#0f141d;--card:#151c27;--muted:rgba(255,255,255,.5);--field:#0c111a}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{font-family:'Lato',system-ui,sans-serif;background:#080b11;color:#fff;min-height:100%}
+.toolbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;padding:11px 16px;background:#0b0f17;border-bottom:1px solid var(--line)}
+.toolbar .mark{width:26px;height:26px;background:var(--red);transform:skewX(-12deg);display:flex;align-items:center;justify-content:center;font-weight:900;flex-shrink:0}
+.toolbar h1{font-size:13px;font-weight:900}
+.toolbar .sub{font-size:9px;color:var(--muted);font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.toolbar .spacer{flex:1}
+.toolbar .stat{font-size:11px;color:var(--muted);font-weight:700}
+.btn{font-family:inherit;font-size:13px;font-weight:900;border:none;border-radius:8px;padding:10px 15px;cursor:pointer;background:var(--red);color:#fff}
+.btn:hover{background:#e63a37}.btn[disabled]{opacity:.6;cursor:wait}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:#fff}
+.app{display:grid;grid-template-columns:minmax(330px,420px) 1fr;min-height:calc(100vh - 49px)}
+.panel{background:var(--panel);border-right:1px solid var(--line);padding:16px;overflow-y:auto;max-height:calc(100vh - 49px)}
+.panel::-webkit-scrollbar,.brain::-webkit-scrollbar{width:9px}.panel::-webkit-scrollbar-thumb,.brain::-webkit-scrollbar-thumb{background:#28313f;border-radius:5px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:13px}
+.card.hot{border-color:rgba(253,75,72,.4)}
+.vhead{font-size:13px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.vhead .dot{width:8px;height:8px;border-radius:50%;background:var(--red)}
+.desc{font-size:12px;color:var(--muted);margin:0 0 11px;line-height:1.5}
+textarea,input[type=text]{width:100%;font-family:inherit;font-size:14px;color:#fff;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:10px;resize:vertical}
+textarea:focus,input:focus{outline:none;border-color:var(--red)}
+#ingestraw{min-height:130px}
+#addcontent{min-height:70px}
+label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:11px 0 5px}
+.kinds{display:flex;flex-wrap:wrap;gap:6px}
+.kinds button{font-family:inherit;font-size:11px;font-weight:900;background:var(--field);border:1px solid var(--line);color:var(--muted);border-radius:99px;padding:7px 13px;cursor:pointer;text-transform:capitalize}
+.kinds button.on{color:#fff;border-color:rgba(253,75,72,.55);background:rgba(253,75,72,.1)}
+.row{display:flex;gap:8px;margin-top:11px}.row .btn{flex:1}
+.status{font-size:12px;font-weight:700;margin-top:9px;min-height:15px;color:var(--muted)}
+/* brain column */
+.brain{padding:18px 20px 60px;overflow-y:auto;max-height:calc(100vh - 49px)}
+.bhead{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.bhead h2{font-size:16px;font-weight:900;letter-spacing:.04em}
+.bhead .count{font-size:11px;font-weight:700;color:var(--muted)}
+.bhead input{max-width:230px;font-size:12.5px;padding:8px 11px}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.filters button{font-family:inherit;font-size:10.5px;font-weight:900;background:var(--card);border:1px solid var(--line);color:var(--muted);border-radius:99px;padding:6px 12px;cursor:pointer;text-transform:capitalize}
+.filters button.on{color:#fff;border-color:rgba(253,75,72,.55)}
+.egroup{margin-bottom:20px}
+.egroup .gh{font-size:10px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:var(--red);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.egroup .gh::after{content:'';flex:1;height:1px;background:var(--line)}
+.entry{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:8px;display:flex;gap:11px;align-items:flex-start}
+.entry.off{opacity:.45}
+.entry .etxt{flex:1;min-width:0}
+.entry .et{font-size:12.5px;font-weight:900;margin-bottom:3px}
+.entry .ec{font-size:12.5px;line-height:1.5;color:rgba(255,255,255,.78)}
+.entry .esrc{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:5px}
+.entry .acts{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.entry .acts button{font-family:inherit;font-size:9.5px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:5px 8px;cursor:pointer;white-space:nowrap}
+.entry .acts button:hover{color:#fff;border-color:var(--red)}
+.empty{font-size:12px;color:var(--muted);padding:14px 4px}
+@media(max-width:900px){
+ .app{display:block}
+ .panel{max-height:none;border-right:none;border-bottom:1px solid var(--line)}
+ .brain{max-height:none;padding:14px 12px 60px}
+ .toolbar .hidem{display:none}
+}
+</style></head>
+<body>
+<div class="toolbar">
+  <div class="mark">W</div>
+  <div><h1>AQL</h1><div class="sub hidem">The brain &middot; every generator reads this</div></div>
+  <div class="spacer"></div>
+  <div class="stat" id="topstat"></div>
+</div>
+<div class="app">
+  <div class="panel">
+    <div class="card hot">
+      <div class="vhead"><span class="dot"></span>Feed AQL a document</div>
+      <p class="desc">Paste meeting notes, a brochure, a transcript, data standards, anything. AQL distills it into discrete, fact-checkable knowledge entries and stores the original.</p>
+      <label>Document title</label>
+      <input type="text" id="ingesttitle" placeholder="e.g. Lance call notes, July 8">
+      <label>Document</label>
+      <textarea id="ingestraw" placeholder="Paste the raw content here..."></textarea>
+      <div class="row"><button class="btn" id="ingestbtn" onclick="ingest()">Distill into AQL</button></div>
+      <div class="status" id="ingeststat"></div>
+    </div>
+    <div class="card">
+      <div class="vhead"><span class="dot"></span>Add one entry manually</div>
+      <label>Kind</label>
+      <div class="kinds" id="kinds">
+        <button class="on" data-k="rule" onclick="pickKind('rule')">rule</button>
+        <button data-k="voice" onclick="pickKind('voice')">voice</button>
+        <button data-k="design" onclick="pickKind('design')">design</button>
+        <button data-k="fact" onclick="pickKind('fact')">fact</button>
+        <button data-k="scope" onclick="pickKind('scope')">scope</button>
+      </div>
+      <label>Title (short)</label>
+      <input type="text" id="addtitle" placeholder="e.g. Never mention pricing">
+      <label>The knowledge</label>
+      <textarea id="addcontent" placeholder="One self-contained statement or instruction..."></textarea>
+      <div class="row"><button class="btn" onclick="addEntry()">Add to AQL</button></div>
+      <div class="status" id="addstat"></div>
+    </div>
+  </div>
+  <div class="brain">
+    <div class="bhead">
+      <h2>What AQL knows</h2>
+      <span class="count" id="bcount"></span>
+      <span style="flex:1"></span>
+      <input type="text" id="bsearch" placeholder="Search entries..." oninput="paint()">
+    </div>
+    <div class="filters" id="filters">
+      <button class="on" data-f="all" onclick="pickFilter('all')">all</button>
+      <button data-f="rule" onclick="pickFilter('rule')">rules</button>
+      <button data-f="voice" onclick="pickFilter('voice')">voice</button>
+      <button data-f="design" onclick="pickFilter('design')">design</button>
+      <button data-f="fact" onclick="pickFilter('fact')">facts</button>
+      <button data-f="scope" onclick="pickFilter('scope')">scope</button>
+    </div>
+    <div id="blist"><div class="empty">Loading AQL...</div></div>
+  </div>
+</div>
+<script>
+const FN='https://ubvoaoyqcdhcatsvqsdz.supabase.co/functions/v1/';
+const APP_KEY='we-bomb-pk-3Jx72Qa9Lm';
+let ENTRIES=[], KIND='rule', FILTER='all';
+function el(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+async function call(body){const r=await fetch(FN+'aql',{method:'POST',headers:{'content-type':'application/json','x-we-app':APP_KEY},body:JSON.stringify(body)});return r.json();}
+function flash(m){el('topstat').textContent=m;setTimeout(()=>{el('topstat').textContent='';},2500);}
+
+function pickKind(k){KIND=k;document.querySelectorAll('#kinds button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));}
+function pickFilter(f){FILTER=f;document.querySelectorAll('#filters button').forEach(b=>b.classList.toggle('on',b.dataset.f===f));paint();}
+
+const ORDER=['rule','voice','design','fact','scope'];
+const GLABEL={rule:'Rules',voice:'Voice',design:'Design',fact:'Facts',scope:'Scope'};
+function paint(){
+  const q=(el('bsearch').value||'').toLowerCase();
+  const list=ENTRIES.filter(e=>(FILTER==='all'||e.kind===FILTER)&&(!q||(e.title+' '+e.content).toLowerCase().includes(q)));
+  el('bcount').textContent=ENTRIES.length+' entries &middot; '.replace('&middot;','·')+ENTRIES.filter(e=>e.active).length+' active';
+  if(!list.length){el('blist').innerHTML='<div class="empty">'+(ENTRIES.length?'Nothing matches that filter.':'AQL is empty. Feed it a document or add an entry.')+'</div>';return;}
+  let h='';
+  ORDER.forEach(k=>{
+    const grp=list.filter(e=>e.kind===k);
+    if(!grp.length)return;
+    h+='<div class="egroup"><div class="gh">'+GLABEL[k]+' ('+grp.length+')</div>';
+    grp.forEach(e=>{
+      h+='<div class="entry'+(e.active?'':' off')+'">'
+        +'<div class="etxt">'+(e.title?'<div class="et">'+esc(e.title)+'</div>':'')
+        +'<div class="ec">'+esc(e.content)+'</div>'
+        +'<div class="esrc">'+esc(e.source)+' &middot; '+new Date(e.created_at).toLocaleDateString()+'</div></div>'
+        +'<div class="acts">'
+        +'<button onclick="toggleEntry(\''+e.id+'\','+(!e.active)+')">'+(e.active?'Mute':'Wake')+'</button>'
+        +'<button onclick="delEntry(\''+e.id+'\')">Delete</button>'
+        +'</div></div>';
+    });
+    h+='</div>';
+  });
+  el('blist').innerHTML=h;
+}
+
+async function load(){
+  try{const d=await call({action:'list'});ENTRIES=d.entries||[];paint();}
+  catch(e){el('blist').innerHTML='<div class="empty">Could not reach AQL.</div>';}
+}
+
+async function ingest(){
+  const raw=el('ingestraw').value.trim();
+  if(raw.length<40){el('ingeststat').textContent='Paste more than a sentence or two.';return;}
+  el('ingestbtn').disabled=true;el('ingeststat').textContent='AQL is reading and distilling... 20-40 seconds.';
+  try{
+    const d=await call({action:'ingest',title:el('ingesttitle').value.trim()||'Untitled document',raw:raw});
+    if(d.error){el('ingeststat').textContent=d.error;}
+    else{
+      el('ingeststat').textContent=(d.reply||'Distilled.')+' Added '+((d.entries&&d.entries.length)||0)+' entries.';
+      el('ingestraw').value='';el('ingesttitle').value='';
+      await load();
+    }
+  }catch(e){el('ingeststat').textContent='Ingest failed. Try again.';}
+  el('ingestbtn').disabled=false;
+}
+
+async function addEntry(){
+  const content=el('addcontent').value.trim();
+  if(!content){el('addstat').textContent='Write the knowledge first.';return;}
+  el('addstat').textContent='Adding...';
+  try{
+    const d=await call({action:'add',kind:KIND,title:el('addtitle').value.trim(),content:content});
+    if(d&&d.entry){el('addstat').textContent='Added.';el('addtitle').value='';el('addcontent').value='';await load();}
+    else el('addstat').textContent=(d&&d.error)||'Failed.';
+  }catch(e){el('addstat').textContent='Failed.';}
+}
+
+async function toggleEntry(id,active){
+  try{await call({action:'toggle',id:id,active:active});const e=ENTRIES.find(x=>x.id===id);if(e)e.active=active;paint();flash(active?'Entry active again.':'Entry muted. Generators will ignore it.');}catch(e){}
+}
+async function delEntry(id){
+  if(!confirm('Delete this from AQL permanently?'))return;
+  try{await call({action:'delete',id:id});ENTRIES=ENTRIES.filter(x=>x.id!==id);paint();flash('Deleted.');}catch(e){}
+}
+
+load();
+</script>
+</body></html>
