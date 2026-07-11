@@ -16,34 +16,53 @@ html,body{font-family:'Lato',system-ui,sans-serif;background:#080b11;color:#fff;
 .btn{font-family:inherit;font-size:13px;font-weight:900;border:none;border-radius:8px;padding:10px 15px;cursor:pointer;background:var(--red);color:#fff}
 .btn:hover{background:#e63a37}.btn[disabled]{opacity:.6;cursor:wait}
 .btn.ghost{background:transparent;border:1px solid var(--line);color:#fff}
-.app{display:grid;grid-template-columns:minmax(330px,420px) 1fr;min-height:calc(100vh - 49px)}
-.panel{background:var(--panel);border-right:1px solid var(--line);padding:16px;overflow-y:auto;max-height:calc(100vh - 49px)}
-.panel::-webkit-scrollbar,.brain::-webkit-scrollbar{width:9px}.panel::-webkit-scrollbar-thumb,.brain::-webkit-scrollbar-thumb{background:#28313f;border-radius:5px}
+.app{display:grid;grid-template-columns:190px 1fr;min-height:calc(100vh - 49px)}
+.rail{background:var(--panel);border-right:1px solid var(--line);padding:14px 10px;display:flex;flex-direction:column;gap:6px}
+.rail button{font-family:inherit;text-align:left;font-size:12.5px;font-weight:900;letter-spacing:.03em;background:transparent;border:1px solid transparent;color:var(--muted);border-radius:10px;padding:11px 13px;cursor:pointer;display:flex;align-items:center;gap:10px}
+.rail button .ric{width:8px;height:8px;border-radius:50%;background:var(--line);flex-shrink:0}
+.rail button:hover{color:#fff}
+.rail button.on{color:#fff;background:var(--card);border-color:rgba(253,75,72,.4)}
+.rail button.on .ric{background:var(--red)}
+.rail .rnote{margin-top:auto;font-size:10px;color:var(--muted);line-height:1.5;padding:8px 6px}
+.content{padding:18px 20px 70px;overflow-y:auto;max-height:calc(100vh - 49px)}
+.content::-webkit-scrollbar{width:9px}.content::-webkit-scrollbar-thumb{background:#28313f;border-radius:5px}
+.view{max-width:860px}
+.vtitle{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.vtitle h2{font-size:17px;font-weight:900}
+.vdesc{font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:16px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:13px}
-.card.hot{border-color:rgba(253,75,72,.4)}
-.vhead{font-size:13px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:5px}
-.vhead .dot{width:8px;height:8px;border-radius:50%;background:var(--red)}
-.desc{font-size:12px;color:var(--muted);margin:0 0 11px;line-height:1.5}
 textarea,input[type=text]{width:100%;font-family:inherit;font-size:14px;color:#fff;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:10px;resize:vertical}
 textarea:focus,input:focus{outline:none;border-color:var(--red)}
-#ingestraw{min-height:130px}
-#addcontent{min-height:70px}
 label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:11px 0 5px}
+.row{display:flex;gap:8px;margin-top:11px}.row .btn{flex:1}
+.status{font-size:12px;font-weight:700;margin-top:9px;min-height:15px;color:var(--muted)}
+.plusbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.plus{width:44px;height:44px;border-radius:50%;background:var(--red);border:none;color:#fff;font-size:24px;font-weight:900;cursor:pointer;line-height:1;flex-shrink:0;transition:.15s}
+.plus:hover{background:#e63a37}
+.plus.open{transform:rotate(45deg)}
+.plusbar .pl{font-size:12.5px;color:var(--muted);font-weight:700}
+.intake{display:none}
+.intake.open{display:block}
+.modes{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.modes button{font-family:inherit;font-size:11px;font-weight:900;background:var(--field);border:1px solid var(--line);color:var(--muted);border-radius:99px;padding:8px 14px;cursor:pointer}
+.modes button.on{color:#fff;border-color:rgba(253,75,72,.55);background:rgba(253,75,72,.1)}
+.mpane{display:none}.mpane.on{display:block}
+.drop{border:2px dashed rgba(253,75,72,.45);border-radius:12px;padding:22px 14px;text-align:center;cursor:pointer;transition:.15s}
+.drop:hover,.drop.over{border-color:var(--red);background:rgba(253,75,72,.06)}
+.drop .dz-ic{font-size:22px;color:var(--red);font-weight:900;margin-bottom:5px}
+.drop .dz-t{font-size:13px;font-weight:900}
+.drop .dz-s{font-size:10.5px;color:var(--muted);font-weight:700;letter-spacing:.06em;margin-top:3px}
 .kinds{display:flex;flex-wrap:wrap;gap:6px}
 .kinds button{font-family:inherit;font-size:11px;font-weight:900;background:var(--field);border:1px solid var(--line);color:var(--muted);border-radius:99px;padding:7px 13px;cursor:pointer;text-transform:capitalize}
 .kinds button.on{color:#fff;border-color:rgba(253,75,72,.55);background:rgba(253,75,72,.1)}
-.row{display:flex;gap:8px;margin-top:11px}.row .btn{flex:1}
-.status{font-size:12px;font-weight:700;margin-top:9px;min-height:15px;color:var(--muted)}
-/* brain column */
-.brain{padding:18px 20px 60px;overflow-y:auto;max-height:calc(100vh - 49px)}
-.bhead{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
-.bhead h2{font-size:16px;font-weight:900;letter-spacing:.04em}
-.bhead .count{font-size:11px;font-weight:700;color:var(--muted)}
-.bhead input{max-width:230px;font-size:12.5px;padding:8px 11px}
-.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.shead{display:flex;align-items:center;gap:10px;margin:18px 0 10px;flex-wrap:wrap}
+.shead .st{font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.shead .count{font-size:11px;color:var(--muted);font-weight:700}
+.shead input{max-width:210px;font-size:12px;padding:8px 11px;margin-left:auto}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .filters button{font-family:inherit;font-size:10.5px;font-weight:900;background:var(--card);border:1px solid var(--line);color:var(--muted);border-radius:99px;padding:6px 12px;cursor:pointer;text-transform:capitalize}
 .filters button.on{color:#fff;border-color:rgba(253,75,72,.55)}
-.egroup{margin-bottom:20px}
+.egroup{margin-bottom:18px}
 .egroup .gh{font-size:10px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:var(--red);margin-bottom:8px;display:flex;align-items:center;gap:8px}
 .egroup .gh::after{content:'';flex:1;height:1px;background:var(--line)}
 .entry{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:8px;display:flex;gap:11px;align-items:flex-start}
@@ -52,21 +71,35 @@ label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-tran
 .entry .et{font-size:12.5px;font-weight:900;margin-bottom:3px}
 .entry .ec{font-size:12.5px;line-height:1.5;color:rgba(255,255,255,.78)}
 .entry .esrc{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:5px}
-.entry .acts{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
-.entry .acts button{font-family:inherit;font-size:9.5px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:5px 8px;cursor:pointer;white-space:nowrap}
-.entry .acts button:hover{color:#fff;border-color:var(--red)}
+.entry .eacts{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.entry .eacts button{font-family:inherit;font-size:9.5px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:5px 8px;cursor:pointer;white-space:nowrap}
+.entry .eacts button:hover{color:#fff;border-color:var(--red)}
 .empty{font-size:12px;color:var(--muted);padding:14px 4px}
+.bg-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+@media(max-width:1000px){.bg-grid{grid-template-columns:1fr}}
+.card .ch{font-size:11px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.card .ch .add{font-size:10px;font-weight:900;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:4px 9px;cursor:pointer}
+.card .ch .add:hover{color:#fff;border-color:var(--red)}
+.crow{display:flex;gap:7px;align-items:center;margin-bottom:7px}
+.crow .sw{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);flex-shrink:0}
+.crow input{font-size:12.5px;padding:8px 10px}
+.crow .nm{flex:1.4}.crow .hx{flex:1;font-family:ui-monospace,Menlo,monospace}
+.crow .rm{background:none;border:none;color:var(--muted);font-size:17px;cursor:pointer;padding:4px;flex-shrink:0}
+.crow .rm:hover{color:var(--red)}
+.svc{background:var(--field);border:1px solid var(--line);border-radius:9px;padding:10px;margin-bottom:8px}
+.svc input{margin-bottom:6px;font-weight:900}
+.svc textarea{min-height:44px;font-size:12.5px}
+.svc .rm2{font-size:9.5px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:4px 8px;cursor:pointer;margin-top:5px}
+.svc .rm2:hover{color:#fff;border-color:var(--red)}
+.bgbar{display:flex;gap:9px;margin:4px 0 14px;flex-wrap:wrap;align-items:center}
 @media(max-width:900px){
- .app{display:block}
- .panel{max-height:none;border-right:none;border-bottom:1px solid var(--line)}
- .brain{max-height:none;padding:14px 12px 60px}
+ .app{grid-template-columns:1fr}
+ .rail{flex-direction:row;border-right:none;border-bottom:1px solid var(--line);padding:8px 10px;overflow-x:auto}
+ .rail button{white-space:nowrap;padding:9px 12px}
+ .rail .rnote{display:none}
+ .content{max-height:none;padding:14px 12px 70px}
  .toolbar .hidem{display:none}
 }
-.drop{border:2px dashed rgba(253,75,72,.45);border-radius:12px;padding:22px 14px;text-align:center;cursor:pointer;margin-bottom:4px;transition:.15s}
-.drop:hover,.drop.over{border-color:var(--red);background:rgba(253,75,72,.06)}
-.drop .dz-ic{font-size:22px;color:var(--red);font-weight:900;margin-bottom:5px}
-.drop .dz-t{font-size:13px;font-weight:900}
-.drop .dz-s{font-size:10.5px;color:var(--muted);font-weight:700;letter-spacing:.06em;margin-top:3px}
 </style></head>
 <body>
 <div class="toolbar">
@@ -76,131 +109,245 @@ label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-tran
   <div class="stat" id="topstat"></div>
 </div>
 <div class="app">
-  <div class="panel">
-    <div class="card hot">
-      <div class="vhead"><span class="dot"></span>Feed AQL</div>
-      <p class="desc">Drop a file, paste a URL, or paste raw text. AQL distills everything into discrete, fact-checkable knowledge entries and archives the original.</p>
-      <div class="drop" id="drop" onclick="document.getElementById('dropfile').click()">
-        <div class="dz-ic">&#8595;</div>
-        <div class="dz-t">Drop a file here or tap to browse</div>
-        <div class="dz-s">PDF, DOCX, TXT, MD, CSV</div>
-        <input type="file" id="dropfile" accept=".pdf,.docx,.txt,.md,.csv" style="display:none" onchange="handleFile(this.files[0])">
-      </div>
-      <label>Or a URL</label>
-      <input type="text" id="ingesturl" placeholder="https://... (a page, article, or post to learn from)">
-      <label>Or paste text &middot; title</label>
-      <input type="text" id="ingesttitle" placeholder="e.g. Lance call notes, July 10">
-      <textarea id="ingestraw" placeholder="Paste the raw content here..."></textarea>
-      <div class="row"><button class="btn" id="ingestbtn" onclick="ingest()">Distill into AQL</button></div>
-      <div class="status" id="ingeststat"></div>
-    </div>
-    <div class="card">
-      <div class="vhead"><span class="dot"></span>Scout the web</div>
-      <p class="desc">AQL searches the web for Wide Effect mentions, LinkedIn presence, and market news, then files what it can verify. Every scouted entry names its source.</p>
-      <label>Extra focus (optional)</label>
-      <input type="text" id="scoutfocus" placeholder="e.g. data center news this month">
-      <div class="row"><button class="btn" id="scoutbtn" onclick="scout()">Run scout</button></div>
-      <div class="status" id="scoutstat"></div>
-    </div>
-    <div class="card"><div class="card">
-      <div class="vhead"><span class="dot"></span>Add one entry manually</div>
-      <label>Kind</label>
-      <div class="kinds" id="kinds">
-        <button class="on" data-k="rule" onclick="pickKind('rule')">rule</button>
-        <button data-k="voice" onclick="pickKind('voice')">voice</button>
-        <button data-k="design" onclick="pickKind('design')">design</button>
-        <button data-k="fact" onclick="pickKind('fact')">fact</button>
-        <button data-k="scope" onclick="pickKind('scope')">scope</button>
-      </div>
-      <label>Title (short)</label>
-      <input type="text" id="addtitle" placeholder="e.g. Never mention pricing">
-      <label>The knowledge</label>
-      <textarea id="addcontent" placeholder="One self-contained statement or instruction..."></textarea>
-      <div class="row"><button class="btn" onclick="addEntry()">Add to AQL</button></div>
-      <div class="status" id="addstat"></div>
-    </div>
+  <div class="rail">
+    <button id="rail_feed" class="on" onclick="railTab('feed')"><span class="ric"></span>Feed</button>
+    <button id="rail_scout" onclick="railTab('scout')"><span class="ric"></span>Scout</button>
+    <button id="rail_brand" onclick="railTab('brand')"><span class="ric"></span>Brand Guide</button>
+    <div class="rnote">Everything AQL learns flows into Campaign Studio, Social Studio, and Data Sheet Studio automatically.</div>
   </div>
-  <div class="brain">
-    <div class="bhead">
-      <h2>What AQL knows</h2>
-      <span class="count" id="bcount"></span>
-      <span style="flex:1"></span>
-      <input type="text" id="bsearch" placeholder="Search entries..." oninput="paint()">
+  <div class="content">
+
+    <!-- ============ FEED ============ -->
+    <div class="view" id="view_feed">
+      <div class="vtitle"><h2>Feed</h2></div>
+      <p class="vdesc">Everything AQL knows, and where you teach it more. Hit the plus to add files, URLs, meeting notes, or run a mention search.</p>
+      <div class="plusbar">
+        <button class="plus" id="plusbtn" onclick="togglePlus()">+</button>
+        <span class="pl">Add to AQL</span>
+      </div>
+      <div class="intake" id="intake">
+        <div class="card">
+          <div class="modes">
+            <button class="on" data-m="file" onclick="pickMode('file')">File</button>
+            <button data-m="url" onclick="pickMode('url')">URL</button>
+            <button data-m="text" onclick="pickMode('text')">Notes / Text</button>
+            <button data-m="mention" onclick="pickMode('mention')">Mention search</button>
+            <button data-m="manual" onclick="pickMode('manual')">Single entry</button>
+          </div>
+          <div class="mpane on" id="mp_file">
+            <div class="drop" id="drop" onclick="document.getElementById('dropfile').click()">
+              <div class="dz-ic">&#8595;</div>
+              <div class="dz-t">Drop a file here or tap to browse</div>
+              <div class="dz-s">PDF, DOCX, TXT, MD, CSV</div>
+              <input type="file" id="dropfile" accept=".pdf,.docx,.txt,.md,.csv" style="display:none" onchange="handleFile(this.files[0])">
+            </div>
+            <label>Title</label>
+            <input type="text" id="ingesttitle" placeholder="e.g. Wide Effect brochure 2026">
+            <textarea id="ingestraw" style="min-height:90px;margin-top:8px" placeholder="Extracted text lands here (editable before distilling)..."></textarea>
+            <div class="row"><button class="btn" id="ingestbtn" onclick="ingest()">Distill into AQL</button></div>
+            <div class="status" id="ingeststat"></div>
+          </div>
+          <div class="mpane" id="mp_url">
+            <label>URL to learn from</label>
+            <input type="text" id="ingesturl" placeholder="https://... (a page, article, or post)">
+            <div class="row"><button class="btn" onclick="ingestURL()">Fetch &amp; distill</button></div>
+            <div class="status" id="urlstat"></div>
+          </div>
+          <div class="mpane" id="mp_text">
+            <label>Title</label>
+            <input type="text" id="notetitle" placeholder="e.g. Lance call notes, July 10">
+            <label>Notes</label>
+            <textarea id="noteraw" style="min-height:120px" placeholder="Paste meeting notes, a transcript, anything..."></textarea>
+            <div class="row"><button class="btn" onclick="ingestText()">Distill into AQL</button></div>
+            <div class="status" id="notestat"></div>
+          </div>
+          <div class="mpane" id="mp_mention">
+            <label>What to search for</label>
+            <input type="text" id="mentionq" placeholder="e.g. Wide Effect reviews, Milwaukee staffing news">
+            <div class="row"><button class="btn" onclick="mentionSearch()">Search &amp; file findings</button></div>
+            <div class="status" id="mentionstat"></div>
+          </div>
+          <div class="mpane" id="mp_manual">
+            <label>Kind</label>
+            <div class="kinds" id="kinds">
+              <button class="on" data-k="rule" onclick="pickKind('rule')">rule</button>
+              <button data-k="voice" onclick="pickKind('voice')">voice</button>
+              <button data-k="design" onclick="pickKind('design')">design</button>
+              <button data-k="fact" onclick="pickKind('fact')">fact</button>
+              <button data-k="scope" onclick="pickKind('scope')">scope</button>
+            </div>
+            <label>Title (short)</label>
+            <input type="text" id="addtitle" placeholder="e.g. Never mention pricing">
+            <label>The knowledge</label>
+            <textarea id="addcontent" style="min-height:64px" placeholder="One self-contained statement or instruction..."></textarea>
+            <div class="row"><button class="btn" onclick="addEntry()">Add to AQL</button></div>
+            <div class="status" id="addstat"></div>
+          </div>
+        </div>
+      </div>
+      <div class="shead">
+        <span class="st">What AQL knows</span>
+        <span class="count" id="bcount"></span>
+        <input type="text" id="bsearch" placeholder="Search entries..." oninput="paintFeed()">
+      </div>
+      <div class="filters" id="filters">
+        <button class="on" data-f="all" onclick="pickFilter('all')">all</button>
+        <button data-f="rule" onclick="pickFilter('rule')">rules</button>
+        <button data-f="voice" onclick="pickFilter('voice')">voice</button>
+        <button data-f="design" onclick="pickFilter('design')">design</button>
+        <button data-f="fact" onclick="pickFilter('fact')">facts</button>
+        <button data-f="scope" onclick="pickFilter('scope')">scope</button>
+      </div>
+      <div id="blist"><div class="empty">Loading AQL...</div></div>
     </div>
-    <div class="filters" id="filters">
-      <button class="on" data-f="all" onclick="pickFilter('all')">all</button>
-      <button data-f="rule" onclick="pickFilter('rule')">rules</button>
-      <button data-f="voice" onclick="pickFilter('voice')">voice</button>
-      <button data-f="design" onclick="pickFilter('design')">design</button>
-      <button data-f="fact" onclick="pickFilter('fact')">facts</button>
-      <button data-f="scope" onclick="pickFilter('scope')">scope</button>
+
+    <!-- ============ SCOUT ============ -->
+    <div class="view" id="view_scout" style="display:none">
+      <div class="vtitle"><h2>Scout</h2></div>
+      <p class="vdesc">AQL's sniffer. It runs automatically every morning (7am MT), searching the web for Wide Effect mentions, LinkedIn presence, and market intel, and files only what it can verify with a named source. Run it manually any time.</p>
+      <div class="card">
+        <label>Extra focus for a manual run (optional)</label>
+        <input type="text" id="scoutfocus" placeholder="e.g. data center announcements this week">
+        <div class="row"><button class="btn" id="scoutbtn" onclick="scout()">Run scout now</button></div>
+        <div class="status" id="scoutstat"></div>
+      </div>
+      <div class="shead"><span class="st">Scouted intel</span><span class="count" id="scount"></span></div>
+      <div id="slist"><div class="empty">No scouted intel yet. Run the scout or wait for the morning sweep.</div></div>
     </div>
-    <div id="blist"><div class="empty">Loading AQL...</div></div>
+
+    <!-- ============ BRAND GUIDE ============ -->
+    <div class="view" id="view_brand" style="display:none">
+      <div class="vtitle"><h2>Brand Guide</h2></div>
+      <p class="vdesc">The curated layer. Colors, type, voice, and services live here, built from AQL's data sources. Saving publishes the guide into AQL so every builder inherits it instantly.</p>
+      <div class="bgbar">
+        <button class="btn" onclick="brandSave()">Save &amp; publish to builders</button>
+        <button class="btn ghost" id="synthbtn" onclick="brandSynth()">Synthesize from AQL</button>
+        <span class="status" id="brandstat" style="margin-top:0"></span>
+      </div>
+      <div class="bg-grid">
+        <div class="card">
+          <div class="ch">Colors <button class="add" onclick="addColor()">+ Add</button></div>
+          <div id="colors"></div>
+        </div>
+        <div class="card">
+          <div class="ch">Typography <button class="add" onclick="addFont()">+ Add</button></div>
+          <div id="fonts"></div>
+        </div>
+        <div class="card">
+          <div class="ch">Voice</div>
+          <textarea id="g_voice" style="min-height:110px" placeholder="How the brand speaks: tone, phrasing rules, do's and don'ts..."></textarea>
+          <label>Tagline</label>
+          <input type="text" id="g_tagline" placeholder="Optional">
+          <label>Boilerplate</label>
+          <textarea id="g_boiler" style="min-height:70px" placeholder="2-3 sentence company description for the bottom of any asset..."></textarea>
+        </div>
+        <div class="card">
+          <div class="ch">Services <button class="add" onclick="addService()">+ Add</button></div>
+          <div id="services"></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 <script>
 const FN='https://ubvoaoyqcdhcatsvqsdz.supabase.co/functions/v1/';
 const APP_KEY='we-bomb-pk-3Jx72Qa9Lm';
-let ENTRIES=[], KIND='rule', FILTER='all';
+let ENTRIES=[], KIND='rule', FILTER='all', MODE='file';
+let GUIDE={colors:[],fonts:[],voice:'',tagline:'',boilerplate:'',services:[]};
 function el(id){return document.getElementById(id);}
-function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
 async function call(body){const r=await fetch(FN+'aql',{method:'POST',headers:{'content-type':'application/json','x-we-app':APP_KEY},body:JSON.stringify(body)});return r.json();}
 function flash(m){el('topstat').textContent=m;setTimeout(()=>{el('topstat').textContent='';},2500);}
 
+/* ---- rail ---- */
+function railTab(t){['feed','scout','brand'].forEach(k=>{el('rail_'+k).classList.toggle('on',k===t);el('view_'+k).style.display=k===t?'block':'none';});if(t==='brand'&&!railTab._b){railTab._b=1;brandLoad();}}
+function togglePlus(){const o=el('intake').classList.toggle('open');el('plusbtn').classList.toggle('open',o);}
+function pickMode(m){MODE=m;document.querySelectorAll('.modes button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));['file','url','text','mention','manual'].forEach(k=>el('mp_'+k).classList.toggle('on',k===m));}
 function pickKind(k){KIND=k;document.querySelectorAll('#kinds button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));}
-function pickFilter(f){FILTER=f;document.querySelectorAll('#filters button').forEach(b=>b.classList.toggle('on',b.dataset.f===f));paint();}
+function pickFilter(f){FILTER=f;document.querySelectorAll('#filters button').forEach(b=>b.classList.toggle('on',b.dataset.f===f));paintFeed();}
 
+/* ---- streams ---- */
 const ORDER=['rule','voice','design','fact','scope'];
 const GLABEL={rule:'Rules',voice:'Voice',design:'Design',fact:'Facts',scope:'Scope'};
-function paint(){
+function entryHTML(e){
+  return '<div class="entry'+(e.active?'':' off')+'">'
+    +'<div class="etxt">'+(e.title?'<div class="et">'+esc(e.title)+'</div>':'')
+    +'<div class="ec">'+esc(e.content)+'</div>'
+    +'<div class="esrc">'+esc(e.source)+' &middot; '+new Date(e.created_at).toLocaleDateString()+'</div></div>'
+    +'<div class="eacts">'
+    +'<button onclick="toggleEntry(\''+e.id+'\','+(!e.active)+')">'+(e.active?'Mute':'Wake')+'</button>'
+    +'<button onclick="delEntry(\''+e.id+'\')">Delete</button>'
+    +'</div></div>';
+}
+function paintFeed(){
   const q=(el('bsearch').value||'').toLowerCase();
   const list=ENTRIES.filter(e=>(FILTER==='all'||e.kind===FILTER)&&(!q||(e.title+' '+e.content).toLowerCase().includes(q)));
-  el('bcount').textContent=ENTRIES.length+' entries &middot; '.replace('&middot;','·')+ENTRIES.filter(e=>e.active).length+' active';
-  if(!list.length){el('blist').innerHTML='<div class="empty">'+(ENTRIES.length?'Nothing matches that filter.':'AQL is empty. Feed it a document or add an entry.')+'</div>';return;}
+  el('bcount').textContent=ENTRIES.length+' entries · '+ENTRIES.filter(e=>e.active).length+' active';
+  if(!list.length){el('blist').innerHTML='<div class="empty">'+(ENTRIES.length?'Nothing matches that filter.':'AQL is empty. Hit the plus and feed it.')+'</div>';return;}
   let h='';
   ORDER.forEach(k=>{
     const grp=list.filter(e=>e.kind===k);
     if(!grp.length)return;
-    h+='<div class="egroup"><div class="gh">'+GLABEL[k]+' ('+grp.length+')</div>';
-    grp.forEach(e=>{
-      h+='<div class="entry'+(e.active?'':' off')+'">'
-        +'<div class="etxt">'+(e.title?'<div class="et">'+esc(e.title)+'</div>':'')
-        +'<div class="ec">'+esc(e.content)+'</div>'
-        +'<div class="esrc">'+esc(e.source)+' &middot; '+new Date(e.created_at).toLocaleDateString()+'</div></div>'
-        +'<div class="acts">'
-        +'<button onclick="toggleEntry(\''+e.id+'\','+(!e.active)+')">'+(e.active?'Mute':'Wake')+'</button>'
-        +'<button onclick="delEntry(\''+e.id+'\')">Delete</button>'
-        +'</div></div>';
-    });
-    h+='</div>';
+    h+='<div class="egroup"><div class="gh">'+GLABEL[k]+' ('+grp.length+')</div>'+grp.map(entryHTML).join('')+'</div>';
   });
   el('blist').innerHTML=h;
 }
-
+function paintScout(){
+  const list=ENTRIES.filter(e=>e.source==='scout');
+  el('scount').textContent=list.length+' finds';
+  el('slist').innerHTML=list.length?list.map(entryHTML).join(''):'<div class="empty">No scouted intel yet. Run the scout or wait for the morning sweep.</div>';
+}
 async function load(){
-  try{const d=await call({action:'list'});ENTRIES=d.entries||[];paint();}
+  try{const d=await call({action:'list'});ENTRIES=d.entries||[];paintFeed();paintScout();}
   catch(e){el('blist').innerHTML='<div class="empty">Could not reach AQL.</div>';}
 }
 
+/* ---- intake actions ---- */
+async function runIngest(payload,statId,clearFns){
+  el(statId).textContent='AQL is reading and distilling... 20-40 seconds.';
+  try{
+    const d=await call(payload);
+    if(d.error)el(statId).textContent=d.error;
+    else{el(statId).textContent=(d.reply||'Distilled.')+' Added '+((d.entries&&d.entries.length)||0)+' entries.';(clearFns||[]).forEach(f=>f());await load();}
+  }catch(e){el(statId).textContent='Failed. Try again.';}
+}
 async function ingest(){
   const raw=el('ingestraw').value.trim();
-  const url=el('ingesturl').value.trim();
-  if(!raw&&!url){el('ingeststat').textContent='Drop a file, paste a URL, or paste text first.';return;}
-  if(url&&!/^https?:\/\//.test(url)){el('ingeststat').textContent='That URL needs to start with https://';return;}
-  el('ingestbtn').disabled=true;el('ingeststat').textContent='AQL is reading and distilling... 20-40 seconds.';
-  try{
-    const payload=raw?{action:'ingest',title:el('ingesttitle').value.trim()||'Untitled document',raw:raw}:{action:'ingest',url:url};
-    const d=await call(payload);
-    if(d.error){el('ingeststat').textContent=d.error;}
-    else{
-      el('ingeststat').textContent=(d.reply||'Distilled.')+' Added '+((d.entries&&d.entries.length)||0)+' entries.';
-      el('ingestraw').value='';el('ingesttitle').value='';el('ingesturl').value='';
-      await load();
-    }
-  }catch(e){el('ingeststat').textContent='Ingest failed. Try again.';}
+  if(raw.length<40){el('ingeststat').textContent='Drop a file first (or paste more text).';return;}
+  el('ingestbtn').disabled=true;
+  await runIngest({action:'ingest',title:el('ingesttitle').value.trim()||'Untitled document',raw:raw},'ingeststat',[()=>{el('ingestraw').value='';el('ingesttitle').value='';}]);
   el('ingestbtn').disabled=false;
 }
-
+function ingestURL(){
+  const url=el('ingesturl').value.trim();
+  if(!/^https?:\/\//.test(url)){el('urlstat').textContent='That URL needs to start with https://';return;}
+  runIngest({action:'ingest',url:url},'urlstat',[()=>{el('ingesturl').value='';}]);
+}
+function ingestText(){
+  const raw=el('noteraw').value.trim();
+  if(raw.length<40){el('notestat').textContent='Paste more than a sentence or two.';return;}
+  runIngest({action:'ingest',title:el('notetitle').value.trim()||'Notes',raw:raw},'notestat',[()=>{el('noteraw').value='';el('notetitle').value='';}]);
+}
+async function mentionSearch(){
+  const q=el('mentionq').value.trim();
+  el('mentionstat').textContent='Searching the web... 30-60 seconds.';
+  try{
+    const d=await call({action:'scout',focus:q||'general mention sweep'});
+    if(d.error)el('mentionstat').textContent=d.error;
+    else{el('mentionstat').textContent=(d.reply||'Done.')+' Filed '+((d.entries&&d.entries.length)||0)+' entries.';el('mentionq').value='';await load();}
+  }catch(e){el('mentionstat').textContent='Search failed. Try again.';}
+}
+async function addEntry(){
+  const content=el('addcontent').value.trim();
+  if(!content){el('addstat').textContent='Write the knowledge first.';return;}
+  el('addstat').textContent='Adding...';
+  try{
+    const d=await call({action:'add',kind:KIND,title:el('addtitle').value.trim(),content:content});
+    if(d&&d.entry){el('addstat').textContent='Added.';el('addtitle').value='';el('addcontent').value='';await load();}
+    else el('addstat').textContent=(d&&d.error)||'Failed.';
+  }catch(e){el('addstat').textContent='Failed.';}
+}
 async function scout(){
   el('scoutbtn').disabled=true;el('scoutstat').textContent='Scouting the web... 30-60 seconds.';
   try{
@@ -210,8 +357,15 @@ async function scout(){
   }catch(e){el('scoutstat').textContent='Scout failed. Try again.';}
   el('scoutbtn').disabled=false;
 }
+async function toggleEntry(id,active){
+  try{await call({action:'toggle',id:id,active:active});const e=ENTRIES.find(x=>x.id===id);if(e)e.active=active;paintFeed();paintScout();flash(active?'Entry active again.':'Entry muted.');}catch(e){}
+}
+async function delEntry(id){
+  if(!confirm('Delete this from AQL permanently?'))return;
+  try{await call({action:'delete',id:id});ENTRIES=ENTRIES.filter(x=>x.id!==id);paintFeed();paintScout();flash('Deleted.');}catch(e){}
+}
 
-/* ---- drop zone: extract text client-side ---- */
+/* ---- drop zone extraction ---- */
 function loadScript(src){return new Promise((res,rej)=>{const t=document.createElement('script');t.src=src;t.onload=res;t.onerror=rej;document.head.appendChild(t);});}
 async function extractPDF(file){
   if(!window.pdfjsLib){await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}
@@ -250,23 +404,44 @@ async function handleFile(file){
   dz.addEventListener('drop',e=>{const f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f)handleFile(f);});
 })();
 
-async function addEntry(){
-  const content=el('addcontent').value.trim();
-  if(!content){el('addstat').textContent='Write the knowledge first.';return;}
-  el('addstat').textContent='Adding...';
+/* ---- brand guide ---- */
+const DEFAULT_GUIDE={colors:[{name:'Wide Effect Red',hex:'#FD4B48'},{name:'Ink',hex:'#0B0F17'},{name:'White',hex:'#FFFFFF'}],fonts:[{name:'Lato 900',usage:'Headlines'},{name:'Lato 700',usage:'Subheads and labels'},{name:'Lato 400',usage:'Body copy'}],voice:'',tagline:'',boilerplate:'',services:[]};
+function paintBrand(){
+  el('colors').innerHTML=(GUIDE.colors||[]).map((c,i)=>'<div class="crow"><div class="sw" style="background:'+esc(c.hex||'#000')+'"></div><input class="nm" value="'+esc(c.name)+'" oninput="GUIDE.colors['+i+'].name=this.value"><input class="hx" value="'+esc(c.hex)+'" oninput="GUIDE.colors['+i+'].hex=this.value;this.parentNode.querySelector(\'.sw\').style.background=this.value"><button class="rm" onclick="GUIDE.colors.splice('+i+',1);paintBrand()">&times;</button></div>').join('')||'<div class="empty">No colors yet.</div>';
+  el('fonts').innerHTML=(GUIDE.fonts||[]).map((f,i)=>'<div class="crow"><input class="nm" value="'+esc(f.name)+'" oninput="GUIDE.fonts['+i+'].name=this.value" placeholder="Font"><input class="nm" value="'+esc(f.usage)+'" oninput="GUIDE.fonts['+i+'].usage=this.value" placeholder="Usage"><button class="rm" onclick="GUIDE.fonts.splice('+i+',1);paintBrand()">&times;</button></div>').join('')||'<div class="empty">No fonts yet.</div>';
+  el('services').innerHTML=(GUIDE.services||[]).map((s,i)=>'<div class="svc"><input value="'+esc(s.name)+'" oninput="GUIDE.services['+i+'].name=this.value" placeholder="Service name"><textarea oninput="GUIDE.services['+i+'].desc=this.value" placeholder="1-2 sentence description...">'+esc(s.desc)+'</textarea><button class="rm2" onclick="GUIDE.services.splice('+i+',1);paintBrand()">Remove</button></div>').join('')||'<div class="empty">No services yet. Synthesize from AQL or add manually.</div>';
+  el('g_voice').value=GUIDE.voice||'';
+  el('g_tagline').value=GUIDE.tagline||'';
+  el('g_boiler').value=GUIDE.boilerplate||'';
+}
+function addColor(){GUIDE.colors=GUIDE.colors||[];GUIDE.colors.push({name:'',hex:'#FD4B48'});paintBrand();}
+function addFont(){GUIDE.fonts=GUIDE.fonts||[];GUIDE.fonts.push({name:'',usage:''});paintBrand();}
+function addService(){GUIDE.services=GUIDE.services||[];GUIDE.services.push({name:'',desc:''});paintBrand();}
+function collectBrand(){GUIDE.voice=el('g_voice').value.trim();GUIDE.tagline=el('g_tagline').value.trim();GUIDE.boilerplate=el('g_boiler').value.trim();GUIDE.colors=(GUIDE.colors||[]).filter(c=>c.name||c.hex);GUIDE.fonts=(GUIDE.fonts||[]).filter(f=>f.name);GUIDE.services=(GUIDE.services||[]).filter(s=>s.name||s.desc);}
+async function brandLoad(){
   try{
-    const d=await call({action:'add',kind:KIND,title:el('addtitle').value.trim(),content:content});
-    if(d&&d.entry){el('addstat').textContent='Added.';el('addtitle').value='';el('addcontent').value='';await load();}
-    else el('addstat').textContent=(d&&d.error)||'Failed.';
-  }catch(e){el('addstat').textContent='Failed.';}
+    const d=await call({action:'brand_get'});
+    GUIDE=(d.guide&&Object.keys(d.guide).length)?d.guide:JSON.parse(JSON.stringify(DEFAULT_GUIDE));
+    paintBrand();
+  }catch(e){GUIDE=JSON.parse(JSON.stringify(DEFAULT_GUIDE));paintBrand();}
 }
-
-async function toggleEntry(id,active){
-  try{await call({action:'toggle',id:id,active:active});const e=ENTRIES.find(x=>x.id===id);if(e)e.active=active;paint();flash(active?'Entry active again.':'Entry muted. Generators will ignore it.');}catch(e){}
+async function brandSave(){
+  collectBrand();
+  el('brandstat').textContent='Publishing...';
+  try{
+    const d=await call({action:'brand_save',guide:GUIDE});
+    el('brandstat').textContent=d&&d.ok?'Published. Every builder now inherits this guide.':'Save failed.';
+    await load();
+  }catch(e){el('brandstat').textContent='Save failed.';}
 }
-async function delEntry(id){
-  if(!confirm('Delete this from AQL permanently?'))return;
-  try{await call({action:'delete',id:id});ENTRIES=ENTRIES.filter(x=>x.id!==id);paint();flash('Deleted.');}catch(e){}
+async function brandSynth(){
+  el('synthbtn').disabled=true;el('brandstat').textContent='AQL is synthesizing the guide from everything it knows... 20-40 seconds.';
+  try{
+    const d=await call({action:'brand_synthesize'});
+    if(d.error)el('brandstat').textContent=d.error;
+    else{GUIDE=d.guide||GUIDE;paintBrand();el('brandstat').textContent=(d.reply||'Guide refreshed.')+' Published to builders.';await load();}
+  }catch(e){el('brandstat').textContent='Synthesis failed. Try again.';}
+  el('synthbtn').disabled=false;
 }
 
 load();
