@@ -145,27 +145,28 @@ html,body{font-family:'Lato',system-ui,sans-serif;background:#080b11;color:#fff}
 .blscope .gr-flag{font-size:11.5px;color:var(--red);font-weight:700;padding:2px 0}
 .blscope .gr-clean{font-size:11.5px;color:#7ee2a8;font-weight:700}
 /* article */
-.blscope .art{background:#fff;color:var(--ink);border-radius:6px;padding:48px 54px 54px;font-family:'Lato',sans-serif;max-width:860px}
-.blscope .art .eyebrow2{font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--red);display:inline-flex;align-items:center;gap:10px;margin-bottom:14px}
-.blscope .art .eyebrow2::before{content:'';width:24px;height:1px;background:var(--red)}
-.blscope .art h1{font-size:32px;font-weight:900;line-height:1.06;letter-spacing:-.012em;margin-bottom:11px;text-wrap:balance;text-transform:none}
-.blscope .art .dek{font-size:16px;line-height:1.5;color:#3c4452;margin-bottom:20px;text-wrap:pretty}
-.blscope .art .tldr{background:#f5f5f7;border-left:4px solid var(--red);border-radius:0 8px 8px 0;padding:14px 17px;margin-bottom:26px}
-.blscope .art .tldr .tl-h{font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--red);margin-bottom:5px}
-.blscope .art .tldr p{font-size:13.5px;line-height:1.55;color:#1c2330}
-.blscope .art h2{font-size:20px;font-weight:900;line-height:1.15;margin:28px 0 9px;padding-bottom:5px;border-bottom:2px solid var(--red);display:inline-block;text-transform:none}
-.blscope .art section p{font-size:14px;line-height:1.66;color:#2a313d;margin-bottom:11px;text-wrap:pretty}
-.blscope .art .takes{background:var(--ink);color:#fff;border-radius:10px;padding:20px 24px;margin:30px 0}
-.blscope .art .takes .tk-h{font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--red);margin-bottom:10px}
-.blscope .art .takes li{list-style:none;font-size:13px;line-height:1.5;padding-left:15px;position:relative;margin-bottom:8px;color:rgba(255,255,255,.92)}
-.blscope .art .takes li::before{content:'';position:absolute;left:0;top:6px;width:6px;height:6px;background:var(--red);transform:rotate(45deg)}
-.blscope .art .faq-h{font-size:20px;font-weight:900;margin:30px 0 12px;padding-bottom:5px;border-bottom:2px solid var(--red);display:inline-block}
-.blscope .art .faq-q{font-size:14.5px;font-weight:900;margin:14px 0 4px}
-.blscope .art .faq-a{font-size:13.5px;line-height:1.6;color:#2a313d;text-wrap:pretty}
-.blscope .art .cta2{margin-top:30px;background:#f5f5f7;border-radius:10px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
-.blscope .art .cta2 p{font-size:13.5px;line-height:1.55;color:#1c2330;flex:1;min-width:200px}
-.blscope .art .cta2 a{font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;background:var(--red);color:#fff;text-decoration:none;border-radius:8px;padding:11px 16px;white-space:nowrap}
-@media(max-width:900px){.blscope .art{padding:26px 20px 36px}.blscope .art h1{font-size:24px}}
+.blscope .art{background:#fff;color:var(--ink);border-radius:6px;padding:clamp(24px,5vw,52px) clamp(18px,6vw,64px) clamp(32px,6vw,58px);font-family:'Lato',sans-serif;max-width:none;width:100%;overflow-wrap:break-word;box-sizing:border-box}
+.blscope .art .eyebrow2{font-size:clamp(10px,2.8vw,11px);font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--red);margin-bottom:16px}
+.blscope .art h1{font-size:clamp(26px,5.5vw,38px);font-weight:900;line-height:1.05;letter-spacing:-.015em;margin-bottom:13px;text-wrap:balance;text-transform:none}
+.blscope .art .dek{font-size:clamp(15.5px,3.6vw,18px);line-height:1.55;color:#3c4452;margin-bottom:20px;text-wrap:pretty}
+.blscope .art .rule{height:1px;background:#e5e7eb;margin:0 0 24px}
+.blscope .art .tldr{border-left:3px solid var(--red);padding:2px 0 2px clamp(14px,3vw,20px);margin-bottom:28px}
+.blscope .art .tldr .tl-h{font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:6px}
+.blscope .art .tldr p{font-size:clamp(14px,3.4vw,16px);line-height:1.65;color:#1c2330}
+.blscope .art .kick{width:30px;height:3px;background:var(--red);border-radius:2px;margin:clamp(26px,5vw,38px) 0 10px}
+.blscope .art h2{font-size:clamp(19px,4.4vw,25px);font-weight:900;line-height:1.15;margin:0 0 13px;border:none;display:block;padding:0;text-transform:none}
+.blscope .art h3{font-size:clamp(16px,3.8vw,19px);font-weight:900;margin:20px 0 8px;color:var(--ink)}
+.blscope .art section p{font-size:clamp(14.5px,3.4vw,16.5px);line-height:1.75;color:#232a36;margin-bottom:16px;text-wrap:pretty}
+.blscope .art .takes{background:var(--ink);color:#fff;border-radius:10px;padding:clamp(18px,4vw,25px);margin:clamp(28px,6vw,38px) 0}
+.blscope .art .takes .tk-h{font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:12px}
+.blscope .art .takes li{list-style:none;font-size:clamp(13px,3.2vw,14.5px);line-height:1.55;padding-left:16px;position:relative;margin-bottom:9px;color:rgba(255,255,255,.93)}
+.blscope .art .takes li::before{content:'';position:absolute;left:0;top:7px;width:6px;height:6px;background:var(--red);transform:rotate(45deg)}
+.blscope .art .faq-h{font-size:clamp(19px,4.4vw,25px);font-weight:900;margin:0 0 4px;border:none;display:block;padding:0}
+.blscope .art .faq-q{font-size:clamp(14.5px,3.6vw,16.5px);font-weight:900;margin:18px 0 5px}
+.blscope .art .faq-a{font-size:clamp(13.5px,3.3vw,15.5px);line-height:1.7;color:#2a313d;text-wrap:pretty}
+.blscope .art .cta2{margin-top:clamp(28px,6vw,40px);padding-top:clamp(16px,4vw,22px);border-top:1px solid #e5e7eb;background:transparent;border-radius:0;display:block;text-align:center}
+.blscope .art .cta2 p{font-size:clamp(13.5px,3.4vw,15.5px);line-height:1.6;color:#1c2330;margin-bottom:15px;min-width:0}
+.blscope .art .cta2 a{font-size:11px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;background:var(--red);color:#fff;text-decoration:none;border-radius:8px;padding:12px 20px;display:inline-block;max-width:100%}}
 </style></head>
 <body>
 <div class="top"><div class="mark">W</div><div><h1>Campaign Studio</h1><div class="sub">Wide Effect · One link, full kit</div></div><a href="./index.html">&#8592; Studio</a></div>
@@ -578,7 +579,7 @@ buildPicker('ds');buildPicker('so');
 
 /* ================= BLOG MODULE ================= */
 function blParas(t){return (t||'').split(/\n\n+/).map(p=>'<p>'+esc2(p).replace(/\n/g,'<br>')+'</p>').join('');}
-function blWordCount(b){let w=(b.tldr||'').split(/\s+/).filter(Boolean).length;(b.sections||[]).forEach(x=>w+=(x.body||'').split(/\s+/).filter(Boolean).length);(b.takeaways||[]).forEach(t=>w+=t.split(/\s+/).filter(Boolean).length);(b.faq||[]).forEach(f=>w+=(f.a||'').split(/\s+/).filter(Boolean).length);return w;}
+function blWordCount(b){let w=(b.tldr||'').split(/\s+/).filter(Boolean).length;(b.sections||[]).forEach(x=>{w+=(x.body||'').split(/\s+/).filter(Boolean).length;(x.subs||[]).forEach(u=>w+=(u.body||'').split(/\s+/).filter(Boolean).length);});(b.takeaways||[]).forEach(t=>w+=t.split(/\s+/).filter(Boolean).length);(b.faq||[]).forEach(f=>w+=(f.a||'').split(/\s+/).filter(Boolean).length);return w;}
 function blJsonld(b){
   const art={"@context":"https://schema.org","@type":"Article","headline":b.title||'',"description":b.meta_description||'',"author":{"@type":"Organization","name":"Wide Effect Talent Solutions","url":"https://wideeffect.com"},"publisher":{"@type":"Organization","name":"Wide Effect Talent Solutions","url":"https://wideeffect.com"},"keywords":[b.primary_keyword].concat(b.keywords||[]).filter(Boolean).join(', ')};
   const out=[art];
@@ -611,23 +612,27 @@ function blGrade(b){
   const first150=((b.tldr||'')+' '+((b.sections&&b.sections[0]&&b.sections[0].body)||'')).toLowerCase().split(/\s+/).slice(0,150).join(' ');
   add('seo',kw&&first150.includes(kw)?4:0,4,'Keyword in opening copy');
   add('seo',/^[a-z0-9]+(-[a-z0-9]+){1,6}$/.test(b.slug||'')?3:0,3,'Slug format (lowercase, hyphenated)');
-  add('seo',(b.keywords||[]).length>=3?3:((b.keywords||[]).length>0?1:0),3,(b.keywords||[]).length+' secondary keywords (target 3+)');
+  add('seo',(b.keywords||[]).length>=5?3:((b.keywords||[]).length>=3?2:((b.keywords||[]).length>0?1:0)),3,(b.keywords||[]).length+' secondary keywords (target 5+)');
   /* AEO 30 */
-  const tw=(b.tldr||'').split(/\s+/).filter(Boolean).length;add('aeo',tw>=40&&tw<=60?8:(tw>=25&&tw<=80?4:0),8,'Short-answer block '+tw+' words (target 40-60)');
+  const tw=(b.tldr||'').split(/\s+/).filter(Boolean).length;add('aeo',tw>=45&&tw<=70?8:(tw>=30&&tw<=90?4:0),8,'Short-answer block '+tw+' words (target 45-70)');
   const qh=(b.sections||[]).filter(x=>/\?\s*$|^(how|what|why|when|where|who|which|can|should|does|is|are)\b/i.test(x.h2||'')).length;
-  add('aeo',qh>=2?8:(qh>=1?4:0),8,qh+' question-form H2s (target 2+)');
-  const fq=(b.faq||[]).length;add('aeo',fq>=4?7:(fq>=2?4:(fq>=1?2:0)),7,fq+' FAQ entries (target 4-6)');
-  const okFa=(b.faq||[]).filter(f=>{const n=(f.a||'').split(/\s+/).filter(Boolean).length;return n>=25&&n<=75;}).length;
-  add('aeo',fq>0&&okFa===fq?7:(okFa>0?4:0),7,okFa+'/'+fq+' FAQ answers standalone length (25-75 words)');
+  add('aeo',qh>=3?8:(qh>=2?5:(qh>=1?2:0)),8,qh+' question-form H2s (target 3+)');
+  const fq=(b.faq||[]).length;add('aeo',fq>=5?7:(fq>=3?4:(fq>=1?2:0)),7,fq+' FAQ entries (target 5-7)');
+  const okFa=(b.faq||[]).filter(f=>{const n=(f.a||'').split(/\s+/).filter(Boolean).length;return n>=30&&n<=85;}).length;
+  add('aeo',fq>0&&okFa===fq?7:(okFa>0?4:0),7,okFa+'/'+fq+' FAQ answers standalone length (30-85 words)');
   /* GEO 30 */
-  const tk=(b.takeaways||[]).length;add('geo',tk>=3?8:(tk>=1?4:0),8,tk+' citable takeaways (target 3-5)');
+  const tk=(b.takeaways||[]).length;add('geo',tk>=4?8:(tk>=2?4:(tk>=1?2:0)),8,tk+' citable takeaways (target 4-6)');
   const solid=(b.takeaways||[]).filter(t=>t.split(/\s+/).filter(Boolean).length>=8&&!/^(it|this|that|they|these|those|he|she)\b/i.test(t.trim())).length;
   add('geo',tk>0&&solid===tk?6:(solid>0?3:0),6,solid+'/'+tk+' takeaways fully standalone');
   const full=JSON.stringify(b);
   const stats=(full.match(/\((AGC|ABC|NCCER|NAHB|BLS|Uptime Institute|Dell'Oro|Turner (&|&amp;) Townsend|Introl|DC Geeks|Birmingham Group)[^)]*\)/gi)||[]).length;
-  add('geo',stats>=2?8:(stats>=1?4:0),8,stats+' sourced statistics (target 2+)');
+  add('geo',stats>=3?8:(stats>=2?5:(stats>=1?2:0)),8,stats+' sourced statistics (target 3-5)');
+  const sec=(b.sections||[]).length;add('geo',sec>=6?3:(sec>=4?2:(sec>=1?1:0)),3,sec+' H2 sections (target 6-8)');
+  const h3s=(b.sections||[]).reduce((n,x)=>n+((x.subs||[]).length),0);add('geo',h3s>=2?3:(h3s>=1?2:0),3,h3s+' H3 subsections (target 2+)');
+  const hasDef=/\b(is a|is the|are the|refers to|means)\b/i.test(((b.sections&&b.sections[0]&&b.sections[0].body)||'')+((b.sections&&b.sections[1]&&b.sections[1].body)||''));add('geo',hasDef?2:0,2,'Definitional sentence early (AI engines lift definitions)');
+  const hasProc=/\b1\)|\b1\.|step 1/i.test(JSON.stringify(b.sections||[]));add('geo',hasProc?2:0,2,'Numbered process or framework present');
   add('geo',4,4,'Article + FAQ schema markup (auto-included)');
-  const wc=blWordCount(b);add('geo',wc>=900&&wc<=1300?4:(wc>=700&&wc<=1600?2:0),4,wc+' words (target 900-1300)');
+  const wc=blWordCount(b);add('geo',wc>=1400&&wc<=2300?4:(wc>=1100&&wc<=2600?2:0),4,wc+' words (target 1500-2200)');
   /* brand flags */
   const flags=[];
   if(/[\u2014\u2013]/.test(full))flags.push('Em or en dash found');
@@ -635,7 +640,7 @@ function blGrade(b){
   if(/\bMSP\b|Managed Services Provider/i.test(full))flags.push('MSP terminology found');
   if(/absorbs compliance/i.test(full))flags.push('"Absorbs compliance" phrasing found');
   if(/Davis-Bacon/i.test(full))flags.push('Davis-Bacon jargon found (use "prevailing wage")');
-  return {score:score,rows:rows,flags:flags};
+  return {score:Math.round(score*100/110),rows:rows,flags:flags};
 }
 function blPaint(){
   const b=S.bl.content;if(!b)return;
@@ -662,39 +667,66 @@ function blPaint(){
   gr+='<div class="gr-flags">'+(g.flags.length?g.flags.map(f=>'<div class="gr-flag">&#9888; '+f+'</div>').join(''):'<div class="gr-clean">&#10003; Brand guardrails clean: no dashes, no union language, no MSP, no jargon flags.</div>')+'</div>';
   el('bl_grader').innerHTML=gr;
   /* article */
-  let h='<div class="eyebrow2">Wide Effect Blog</div><h1>'+esc2(b.title||'')+'</h1>';
+  let h='<div class="eyebrow2">Wide Effect &middot; Insights</div><h1>'+esc2(b.title||'')+'</h1>';
   if(b.dek)h+='<p class="dek">'+esc2(b.dek)+'</p>';
-  if(b.tldr)h+='<div class="tldr"><div class="tl-h">The short answer</div><p>'+esc2(b.tldr)+'</p></div>';
-  (b.sections||[]).forEach(x=>{h+='<section><h2>'+esc2(x.h2)+'</h2>'+blParas(x.body)+'</section>';});
+  h+='<div class="rule"></div>';
+  if(b.tldr)h+='<div class="tldr"><div class="tl-h">In brief</div><p>'+esc2(b.tldr)+'</p></div>';
+  (b.sections||[]).forEach(x=>{h+='<section><div class="kick"></div><h2>'+esc2(x.h2)+'</h2>'+blParas(x.body)+(x.subs||[]).map(u=>'<h3>'+esc2(u.h3)+'</h3>'+blParas(u.body)).join('')+'</section>';});
   if(b.takeaways&&b.takeaways.length)h+='<div class="takes"><div class="tk-h">Key takeaways</div><ul>'+b.takeaways.map(t=>'<li>'+esc2(t)+'</li>').join('')+'</ul></div>';
-  if(b.faq&&b.faq.length)h+='<div class="faq-h">Frequently asked questions</div>'+b.faq.map(f=>'<div class="faq-q">'+esc2(f.q)+'</div><p class="faq-a">'+esc2(f.a)+'</p>').join('');
+  if(b.faq&&b.faq.length)h+='<div class="kick"></div><div class="faq-h">Frequently asked questions</div>'+b.faq.map(f=>'<div class="faq-q">'+esc2(f.q)+'</div><p class="faq-a">'+esc2(f.a)+'</p>').join('');
   if(b.cta)h+='<div class="cta2"><p>'+esc2(b.cta)+'</p><a href="'+esc2(b.cta_url||'https://wideeffect.com')+'" target="_blank" rel="noopener">Learn more</a></div>';
   el('bl_art').innerHTML=h;
 }
 /* ---- exports ---- */
 function blExportHTML(b){
-  let h='<!-- ===== HEAD TAGS (paste into the page head / CMS SEO fields) ===== -->\n'+blHeadBlock(b)+'\n<!-- ===== ARTICLE BODY ===== -->\n';
-  h+='<article class="we-blog">\n<h1>'+esc2(b.title||'')+'</h1>\n';
-  if(b.dek)h+='<p class="we-dek"><em>'+esc2(b.dek)+'</em></p>\n';
-  if(b.tldr)h+='<div class="we-tldr"><strong>The short answer:</strong> '+esc2(b.tldr)+'</div>\n';
-  (b.sections||[]).forEach(x=>{h+='<h2>'+esc2(x.h2)+'</h2>\n'+(x.body||'').split(/\n\n+/).map(p=>'<p>'+esc2(p)+'</p>').join('\n')+'\n';});
-  if(b.takeaways&&b.takeaways.length)h+='<h2>Key takeaways</h2>\n<ul>\n'+b.takeaways.map(t=>'<li>'+esc2(t)+'</li>').join('\n')+'\n</ul>\n';
-  if(b.faq&&b.faq.length)h+='<h2>Frequently asked questions</h2>\n'+b.faq.map(f=>'<h3>'+esc2(f.q)+'</h3>\n<p>'+esc2(f.a)+'</p>').join('\n')+'\n';
-  if(b.cta)h+='<p class="we-cta">'+esc2(b.cta)+' <a href="'+esc2(b.cta_url||'https://wideeffect.com')+'">Learn more</a></p>\n';
-  return h+'</article>';
+  /* Editorial, self-contained, inline-styled. clamp() makes every size fluid so it is mobile-safe with no media queries. */
+  const F="font-family:'Lato',Helvetica,Arial,sans-serif;";
+  const RED='#fd4b48', INK='#0b0f17';
+  const P='style="'+F+'font-size:clamp(15.5px,4vw,17px);line-height:1.75;color:#232a36;margin:0 0 18px;"';
+  const KICK='<div style="width:30px;height:3px;background:'+RED+';border-radius:2px;margin:0 0 10px;"></div>';
+  let h='<article class="we-blog" style="'+F+'color:'+INK+';width:100%;max-width:100%;margin:0;padding:clamp(28px,6vw,56px) 0 0;overflow-wrap:break-word;box-sizing:border-box;">\n';
+  h+='<div style="'+F+'font-size:clamp(10px,2.8vw,11px);font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:'+RED+';margin:0 0 16px;">Wide Effect &middot; Insights</div>\n';
+  h+='<h1 style="'+F+'font-size:clamp(27px,7vw,40px);font-weight:900;line-height:1.05;letter-spacing:-.015em;margin:0 0 14px;color:'+INK+';">'+esc2(b.title||'')+'</h1>\n';
+  if(b.dek)h+='<p style="'+F+'font-size:clamp(16px,4.4vw,19px);line-height:1.55;color:#3c4452;font-weight:400;margin:0 0 22px;">'+esc2(b.dek)+'</p>\n';
+  h+='<div style="height:1px;background:#e5e7eb;margin:0 0 26px;"></div>\n';
+  if(b.tldr){h+='<div style="border-left:3px solid '+RED+';padding:2px 0 2px clamp(14px,4vw,20px);margin:0 0 30px;">';
+    h+='<div style="'+F+'font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:'+RED+';margin:0 0 7px;">In brief</div>';
+    h+='<p style="'+F+'font-size:clamp(15px,4vw,16.5px);line-height:1.65;color:#1c2330;margin:0;">'+esc2(b.tldr)+'</p></div>\n';}
+  (b.sections||[]).forEach(x=>{
+    h+='<div style="margin:clamp(28px,7vw,40px) 0 0;">'+KICK;
+    h+='<h2 style="'+F+'font-size:clamp(20px,5.4vw,26px);font-weight:900;line-height:1.15;margin:0 0 14px;color:'+INK+';">'+esc2(x.h2)+'</h2>\n';
+    h+=(x.body||'').split(/\n\n+/).map(p=>'<p '+P+'>'+esc2(p)+'</p>').join('\n');
+    (x.subs||[]).forEach(u=>{h+='<h3 style="'+F+'font-size:clamp(16px,4.2vw,19px);font-weight:900;margin:22px 0 8px;color:'+INK+';">'+esc2(u.h3)+'</h3>\n'+(u.body||'').split(/\n\n+/).map(p=>'<p '+P+'>'+esc2(p)+'</p>').join('\n');});
+    h+='</div>\n';
+  });
+  if(b.takeaways&&b.takeaways.length){
+    h+='<div style="background:'+INK+';color:#ffffff;border-radius:10px;padding:clamp(18px,5vw,26px);margin:clamp(30px,8vw,40px) 0;">';
+    h+='<div style="'+F+'font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:'+RED+';margin:0 0 13px;">Key takeaways</div>';
+    h+='<ul style="margin:0;padding:0;list-style:none;">'+b.takeaways.map(t=>'<li style="'+F+'font-size:clamp(13.5px,3.8vw,15px);line-height:1.55;padding-left:17px;position:relative;margin:0 0 10px;color:rgba(255,255,255,.93);"><span style="position:absolute;left:0;top:8px;width:6px;height:6px;background:'+RED+';transform:rotate(45deg);display:inline-block;"></span>'+esc2(t)+'</li>').join('')+'</ul></div>\n';}
+  if(b.faq&&b.faq.length){
+    h+='<div style="margin:clamp(28px,7vw,40px) 0 0;">'+KICK;
+    h+='<h2 style="'+F+'font-size:clamp(20px,5.4vw,26px);font-weight:900;margin:0 0 6px;color:'+INK+';">Frequently asked questions</h2>\n';
+    h+=b.faq.map(f=>'<h3 style="'+F+'font-size:clamp(15.5px,4.2vw,17px);font-weight:900;margin:20px 0 6px;color:'+INK+';">'+esc2(f.q)+'</h3>\n<p style="'+F+'font-size:clamp(14.5px,3.9vw,16px);line-height:1.7;color:#2a313d;margin:0;">'+esc2(f.a)+'</p>').join('\n')+'</div>\n';}
+  if(b.cta){
+    h+='<div style="margin:clamp(32px,8vw,44px) 0 0;padding:clamp(18px,5vw,24px) 0 0;border-top:1px solid #e5e7eb;text-align:center;">';
+    h+='<p style="'+F+'font-size:clamp(14.5px,4vw,16px);line-height:1.6;color:#1c2330;margin:0 0 16px;">'+esc2(b.cta)+'</p>';
+    h+='<a href="'+esc2(b.cta_url||'https://wideeffect.com')+'" style="'+F+'font-size:12px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;background:'+RED+';color:#ffffff;text-decoration:none;border-radius:8px;padding:13px 22px;display:inline-block;max-width:100%;">Learn more</a></div>\n';}
+  h+='</article>\n';
+  h+=blJsonld(b).map(o=>'<script type="application/ld+json">'+JSON.stringify(o)+'<'+'/script>').join('\n');
+  return h;
 }
 function blExportMD(b){
   let m='---\nslug: /blog/'+(b.slug||'')+'\nmeta_title: "'+(b.meta_title||'')+'"\nmeta_description: "'+(b.meta_description||'')+'"\nkeywords: '+[b.primary_keyword].concat(b.keywords||[]).filter(Boolean).join(', ')+'\n---\n\n# '+(b.title||'')+'\n\n';
   if(b.dek)m+='*'+b.dek+'*\n\n';
   if(b.tldr)m+='> **The short answer:** '+b.tldr+'\n\n';
-  (b.sections||[]).forEach(x=>{m+='## '+x.h2+'\n\n'+x.body+'\n\n';});
+  (b.sections||[]).forEach(x=>{m+='## '+x.h2+'\n\n'+x.body+'\n\n';(x.subs||[]).forEach(u=>{m+='### '+u.h3+'\n\n'+u.body+'\n\n';});});
   if(b.takeaways&&b.takeaways.length)m+='## Key takeaways\n\n'+b.takeaways.map(t=>'- '+t).join('\n')+'\n\n';
   if(b.faq&&b.faq.length)m+='## Frequently asked questions\n\n'+b.faq.map(f=>'### '+f.q+'\n\n'+f.a).join('\n\n')+'\n\n';
   if(b.cta)m+=b.cta+' [Learn more]('+(b.cta_url||'https://wideeffect.com')+')\n';
   return m;
 }
 function blCopy(txt,label){navigator.clipboard.writeText(txt).then(()=>sstat(label+' copied to clipboard.')).catch(()=>sstat('Copy failed.'));}
-function blCopyHTML(){if(!S.bl.content){sstat('No blog yet.');return;}blCopy(blExportHTML(S.bl.content),'CMS-ready HTML (with head tags + schema)');}
+function blCopyHTML(){if(!S.bl.content){sstat('No blog yet.');return;}blCopy(blExportHTML(S.bl.content),'CMS block HTML (styled, schema included)');}
 function blCopyMD(){if(!S.bl.content){sstat('No blog yet.');return;}blCopy(blExportMD(S.bl.content),'Markdown');}
 function blCopyMeta(){if(!S.bl.content){sstat('No blog yet.');return;}blCopy(blHeadBlock(S.bl.content),'Head tags (title, meta, OG, geo, schema)');}
 async function blSave(){if(!S.bl.content){sstat('No blog yet.');return;}sstat('Saving...');try{const d=await call('blog-posts',{action:'save',title:(S.bl.content.title||'Blog Post').slice(0,120),url:S.url||null,content:S.bl.content});if(d&&d.post)sstat('Blog saved.');else sstat('Save failed.');}catch(e){sstat('Save failed.');}}
