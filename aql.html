@@ -508,6 +508,13 @@ label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-tran
         </select>
         <div class="desc" id="combo_desc" style="margin:9px 0 0"></div>
         <div class="desc" id="tpl_row" style="display:none;margin:6px 0 0"><a href="#" onclick="deleteTemplate();return false" style="color:#fd4b48;text-decoration:none;font-weight:700">Delete this template</a></div>
+        <div style="margin-top:12px">
+          <div class="card-h" style="margin-bottom:6px">Inspiration Screenshots</div>
+          <div class="desc" style="margin:0 0 8px">Drop, paste, or tap to add screenshots of posts you like. Claude studies them when it builds. They save with the template.</div>
+          <div id="inspo_drop" onclick="document.getElementById('inspo_file').click()" style="display:flex;align-items:center;justify-content:center;min-height:64px;border:1.5px dashed rgba(255,255,255,.22);border-radius:10px;color:rgba(255,255,255,.45);font-size:12px;font-weight:700;letter-spacing:.04em;cursor:pointer;user-select:none;text-align:center;padding:10px">Drop / paste / tap to add screenshots</div>
+          <input type="file" id="inspo_file" accept="image/*" multiple style="display:none" onchange="inspoPick(this)">
+          <div id="inspo_tray" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+        </div>
       </div>
       <div class="card" id="styleFields" style="display:none">
         <div id="sf-employee" style="display:none">
@@ -1119,8 +1126,9 @@ function setCombo(vv){const parts=vv.split(':');window.CHASSIS=parts[0];window.F
       if(typeof reflectSave==='function')reflectSave();updatePromptUI();
       if(sel&&sel.value!==vv)sel.value=vv;
       if(d)d.textContent='Template: '+t.title+'. Paste a source and Build; Claude matches this prototype.';
+      window.INSPO=(Array.isArray(t.inspo)?t.inspo:[]).filter(function(x){return x&&x.src;}).slice(0,INSPO_MAX);inspoPaint();
       reflectTpl();coverThumb();return;}}
-  window.TEMPLATE_ID=null;
+  window.TEMPLATE_ID=null;window.INSPO=[];inspoPaint();
   if(sel&&sel.value!==key)sel.value=key;
   if(d)d.textContent=COMBO_DESC[key]||'';
   reflectTpl();
@@ -1154,7 +1162,7 @@ async function saveTemplate(){const btn=document.getElementById('tplbtn');const 
     let title=(v('posttitle')||'').trim();
     if(!title&&window.TEMPLATE_ID){const t0=(window.TEMPLATES||[]).find(function(x){return x.id===window.TEMPLATE_ID;});if(t0)title=t0.title;}
     if(!title){const hcand=window.FORMAT==='carousel'?v('c_h'):(v('sp_h')||v('fe_name')||v('fj_title')||v('fs_h')||v('c_h'));title=(hcand||'Untitled template').split('\n')[0].replace(/\*/g,'').trim()||'Untitled template';}
-    const d=await call(TPL_ENDPOINT,{action:'save',id:window.TEMPLATE_ID||undefined,title:title,chassis:window.CHASSIS,format:window.FORMAT,image_idx:SEL,slides:{_style:window.CHASSIS+'-'+window.FORMAT,chassis:window.CHASSIS,format:window.FORMAT,linkedin:collectLinkedIn(),gmb:collectGMB()}});
+    const d=await call(TPL_ENDPOINT,{action:'save',id:window.TEMPLATE_ID||undefined,title:title,chassis:window.CHASSIS,format:window.FORMAT,image_idx:SEL,inspo:window.INSPO,slides:{_style:window.CHASSIS+'-'+window.FORMAT,chassis:window.CHASSIS,format:window.FORMAT,linkedin:collectLinkedIn(),gmb:collectGMB()}});
     if(d&&d.template){window.TEMPLATE_ID=d.template.id;await loadTemplates();
       const sel=document.getElementById('chassis_sel');if(sel)sel.value=window.CHASSIS+':'+window.FORMAT+':'+d.template.id;
       const dd=document.getElementById('combo_desc');if(dd)dd.textContent='Template: '+d.template.title+'. Paste a source and Build; Claude matches this prototype.';
@@ -1166,6 +1174,31 @@ async function saveTemplate(){const btn=document.getElementById('tplbtn');const 
 async function deleteTemplate(){if(!window.TEMPLATE_ID)return;if(!confirm('Delete this template? This cannot be undone.'))return;
   try{await call(TPL_ENDPOINT,{action:'delete',id:window.TEMPLATE_ID});window.TEMPLATE_ID=null;await loadTemplates();setCombo(window.CHASSIS+':'+window.FORMAT);status('Template deleted.');}catch(e){status('Delete failed.');}
 }
+/* ---- inspiration screenshots ---- */
+window.INSPO=[];
+const INSPO_MAX=4;
+function inspoPaint(){const tr=document.getElementById('inspo_tray');if(!tr)return;
+  tr.innerHTML=window.INSPO.map(function(x,i){return '<div style="position:relative"><img src="'+x.src+'" style="width:86px;height:86px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.15);display:block"><button onclick="inspoRemove('+i+')" style="position:absolute;top:-7px;right:-7px;width:20px;height:20px;border-radius:50%;border:0;background:#fd4b48;color:#fff;font-size:12px;font-weight:900;cursor:pointer;line-height:1;padding:0">\u00d7</button></div>';}).join('');
+  const dz=document.getElementById('inspo_drop');if(dz)dz.style.display=window.INSPO.length>=INSPO_MAX?'none':'flex';
+}
+function inspoRemove(i){window.INSPO.splice(i,1);inspoPaint();}
+function inspoCompress(durl,cb){const img=new Image();
+  img.onload=function(){const M=1000;let w=img.width,h=img.height;const sc=Math.min(1,M/Math.max(w,h));w=Math.max(1,Math.round(w*sc));h=Math.max(1,Math.round(h*sc));
+    const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);cb(c.toDataURL('image/jpeg',0.8));};
+  img.onerror=function(){cb(null);};img.src=durl;}
+function inspoAddFile(f){if(!f||!f.type||f.type.indexOf('image')!==0)return;
+  if(window.INSPO.length>=INSPO_MAX){status('Max '+INSPO_MAX+' screenshots.');return;}
+  const rd=new FileReader();
+  rd.onload=function(){inspoCompress(rd.result,function(durl){if(!durl){status('Could not read that image.');return;}if(window.INSPO.length>=INSPO_MAX)return;window.INSPO.push({src:durl});inspoPaint();});};
+  rd.readAsDataURL(f);}
+function inspoPick(inp){const fs=Array.prototype.slice.call(inp.files||[]);fs.forEach(inspoAddFile);inp.value='';}
+(function(){const dz=document.getElementById('inspo_drop');
+  if(dz){dz.addEventListener('dragover',function(e){e.preventDefault();dz.style.borderColor='rgba(253,75,72,.6)';});
+    dz.addEventListener('dragleave',function(){dz.style.borderColor='rgba(255,255,255,.22)';});
+    dz.addEventListener('drop',function(e){e.preventDefault();dz.style.borderColor='rgba(255,255,255,.22)';const fs=Array.prototype.slice.call((e.dataTransfer||{}).files||[]);fs.forEach(inspoAddFile);});}
+  document.addEventListener('paste',function(e){const wb=document.getElementById('webuild');if(!wb||wb.style.display==='none')return;
+    const items=(e.clipboardData||{}).items||[];for(let i=0;i<items.length;i++){const it=items[i];if(it.type&&it.type.indexOf('image')===0){const f=it.getAsFile();if(f)inspoAddFile(f);}}});
+})();
 function setChannel(ch){window.CHANNEL=ch;
   const a=document.getElementById('ch_li'),b=document.getElementById('ch_gmb');
   if(a)a.classList.toggle('on',ch==='linkedin');if(b)b.classList.toggle('on',ch==='gmb');
@@ -1193,7 +1226,7 @@ async function aiSubmit(){
   const url=(v('ai_url')||'').trim()||'https://wideeffect.com/construction-staffing-solutions';
   const editing=window.HAS_DECK;const btn=document.getElementById('go');btn.disabled=true;const ol=btn.textContent;
   btn.textContent=editing?'Updating...':'Building...';status(editing?'Applying your change (Opus)...':'Building your deck (Opus)...');
-  const payload=editing?{mode:'edit',instruction:text,url:url,chassis:window.CHASSIS,format:window.FORMAT,current:{linkedin:collectLinkedIn(),gmb:collectGMB()}}:{src:text,url:url,chassis:window.CHASSIS,format:window.FORMAT,template:(function(){if(!window.TEMPLATE_ID)return undefined;const t=(window.TEMPLATES||[]).find(function(x){return x.id===window.TEMPLATE_ID;});return(t&&t.slides)?{linkedin:t.slides.linkedin,gmb:t.slides.gmb}:undefined;})()};
+  const payload=editing?{mode:'edit',instruction:text,url:url,chassis:window.CHASSIS,format:window.FORMAT,images:(window.INSPO.length?window.INSPO.map(function(x){return x.src;}):undefined),current:{linkedin:collectLinkedIn(),gmb:collectGMB()}}:{src:text,url:url,chassis:window.CHASSIS,format:window.FORMAT,images:(window.INSPO.length?window.INSPO.map(function(x){return x.src;}):undefined),template:(function(){if(!window.TEMPLATE_ID)return undefined;const t=(window.TEMPLATES||[]).find(function(x){return x.id===window.TEMPLATE_ID;});return(t&&t.slides)?{linkedin:t.slides.linkedin,gmb:t.slides.gmb}:undefined;})()};
   try{const res=await fetch(AI_ENDPOINT,{method:'POST',headers:{'content-type':'application/json','x-we-app':APP_KEY},body:JSON.stringify(payload)});const data=await res.json();
     if(data&&data.linkedin&&data.gmb){applyDual(data,url);window.HAS_DECK=true;if(!editing){window.CURRENT_ID=null;window.CURRENT_TITLE='';set('posttitle','');reflectSave();}if(data.reply)addLog('\u2726 '+data.reply);addLog((editing?'\u270e ':'\u2605 ')+text);document.getElementById('aiprompt').value='';updatePromptUI();status('Done. Both channels updated.');if(window.innerWidth<=880)switchView('preview');btn.disabled=false;btn.textContent=ol;return;}
     const payloadOut=data&&(data.slides||(data.post?Object.assign({style:'single'},data.post):null));
@@ -1228,6 +1261,7 @@ async function refineInline(id){const ins=(v('peref_'+id)||'').trim();if(!ins){p
 async function saveInline(id){if(window.CURRENT_ID!==id){const ok=await loadInto(id);if(!ok){pestatSet(id,'Could not load to save.');return;}}let title=(v('petitle_'+id)||'').trim()||window.CURRENT_TITLE||'Untitled';pestatSet(id,'Saving...');try{const d=await call(POSTS_ENDPOINT,{action:'save',id:id,title:title,url:v('ai_url'),image_idx:SEL,slides:collectJSON()});if(d&&d.post){window.CURRENT_TITLE=d.post.title||title;const span=document.querySelector('#post_'+id+' .ptitle');if(span)span.textContent=window.CURRENT_TITLE;pestatSet(id,'Saved ✓');setTimeout(()=>pestatSet(id,'Loaded — edit and Save changes.'),2200);}else pestatSet(id,'Save failed.');}catch(e){pestatSet(id,'Save failed.');}}
 async function loadPost(id){status2('Loading...');try{const d=await call(POSTS_ENDPOINT,{action:'get',id:id});if(d&&d.post){const p=d.post;if(Number.isInteger(p.image_idx)&&p.image_idx<window.GALLERY.length)SEL=p.image_idx;
     const sl=p.slides||{};
+    window.INSPO=[];inspoPaint();window.TEMPLATE_ID=null;reflectTpl();
     if(sl.linkedin){window.CHANNEL='linkedin';applyDual(sl,p.url);}
     else{const st=sl.style||'carousel';const m={carousel:'blog:carousel',single:'blog:single',employee:'employee:single',job:'job:single',special:'special:single',gmb:'blog:single'};const combo=m[st]||'blog:carousel';const parts=combo.split(':');window.CHASSIS=parts[0];window.FORMAT=parts[1];const sel2=document.getElementById('chassis_sel');if(sel2)sel2.value=combo;const dd2=document.getElementById('combo_desc');if(dd2)dd2.textContent=COMBO_DESC[combo]||'';window.CHANNEL=(st==='gmb')?'gmb':'linkedin';const ca=document.getElementById('ch_li'),cb=document.getElementById('ch_gmb');if(ca)ca.classList.toggle('on',window.CHANNEL==='linkedin');if(cb)cb.classList.toggle('on',window.CHANNEL==='gmb');applyJSON(sl,p.url);}
     window.HAS_DECK=true;window.CURRENT_ID=p.id;window.CURRENT_TITLE=p.title;set('posttitle',p.title);reflectSave();document.getElementById('log').innerHTML='';addLog('Loaded: '+p.title);updatePromptUI();coverThumb();buildGrid();status2('');switchView('studio');}else status2('Load failed.');}catch(e){status2('Load failed.');}}
@@ -1284,7 +1318,7 @@ window.saveAsNew=saveAsNew;window.newPost=newPost;window.aiSubmit=aiSubmit;windo
 window.downloadPDF=downloadPDF;window.pick=pick;window.deleteImage=deleteImage;
 window.generateImage=generateImage;window.uploadFile=uploadFile;window.toggleCoverPick=toggleCoverPick;
 window.loadPost=loadPost;window.deletePost=deletePost;window.switchView=switchView;
-window.setCombo=setCombo;window.setChannel=setChannel;window.saveTemplate=saveTemplate;window.deleteTemplate=deleteTemplate;window.loadTemplates=loadTemplates;
+window.setCombo=setCombo;window.setChannel=setChannel;window.saveTemplate=saveTemplate;window.deleteTemplate=deleteTemplate;window.loadTemplates=loadTemplates;window.inspoPick=inspoPick;window.inspoRemove=inspoRemove;
 window.WB.setCombo=setCombo;window.WB.setChannel=setChannel;
 })();
 
