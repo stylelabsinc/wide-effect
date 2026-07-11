@@ -484,7 +484,7 @@ label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-tran
       </div>
 
       <div id="webuild" style="display:none">
-        <div class="bhead"><span class="bh-t">Build</span><span id="dlstatus"></span><span class="spacer"></span><button class="btn" id="dl_btn" onclick="downloadPDF()">Download PNG / PDF</button></div>
+        <div class="bhead"><span class="bh-t">Build</span><span id="dlstatus"></span><span class="spacer"></span><button class="btn ghost" id="tplbtn" onclick="saveTemplate()">Save as template</button><button class="btn" id="dl_btn" onclick="downloadPDF()">Download PNG / PDF</button></div>
         <div class="bwrap">
           <div class="panel">
 
@@ -507,6 +507,7 @@ label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-tran
           <option value="special:single">Special Day · Single</option>
         </select>
         <div class="desc" id="combo_desc" style="margin:9px 0 0"></div>
+        <div class="desc" id="tpl_row" style="display:none;margin:6px 0 0"><a href="#" onclick="deleteTemplate();return false" style="color:#fd4b48;text-decoration:none;font-weight:700">Delete this template</a></div>
       </div>
       <div class="card" id="styleFields" style="display:none">
         <div id="sf-employee" style="display:none">
@@ -839,7 +840,7 @@ function paintStyles(){
      +'<div class="sy-top"><span class="sy-name">'+t.name+'</span><span class="sy-ch '+t.ch+'">'+CHANNELS[t.ch]+'</span></div>'
      +'<div class="sy-spec">'+t.spec+'</div>'
      +'<div class="sy-bp">'+t.bp+'</div>'
-     +'<div class="sy-insp"><b>'+n+'</b> inspiration'+(n===1?'':'s')+' filed</div>'
+     +'<div class="sy-insp"><b>'+((window.TEMPLATES||[]).filter(function(x){return x.chassis+'-'+x.format===t.id;}).length)+'</b> template'+(((window.TEMPLATES||[]).filter(function(x){return x.chassis+'-'+x.format===t.id;}).length)===1?'':'s')+' \u00b7 <b>'+n+'</b> inspiration'+(n===1?'':'s')+' filed</div>'
      +'<div class="sy-row"><a href="?chassis='+t.id.split('-')[0]+'&format='+t.id.split('-')[1]+'" onclick="openBuild(\''+t.id+'\');return false">Build one</a><button onclick="toggleInsp(\''+t.id+'\')">+ Inspiration</button></div>'
      +'<div class="sy-add" id="ia_'+t.id+'"><textarea id="it_'+t.id+'" placeholder="Paste an example post or a style note for '+t.name+'..."></textarea><button class="btn" onclick="saveInsp(\''+t.id+'\')">File into AQL</button><div class="status" id="is_'+t.id+'"></div></div>'
      +'</div>';
@@ -974,7 +975,7 @@ const LOGO=`<svg class="we-logo-slide" width="220" height="40" viewBox="0 0 5010
 </svg>`;
 const APP_KEY="we-bomb-pk-3Jx72Qa9Lm";
 const B="https://ubvoaoyqcdhcatsvqsdz.supabase.co/functions/v1/";
-const AI_ENDPOINT=B+"carousel-ai",POSTS_ENDPOINT=B+"carousel-posts",IMAGES_ENDPOINT=B+"carousel-images",GENERATE_ENDPOINT=B+"generate-image";
+const AI_ENDPOINT=B+"carousel-ai",POSTS_ENDPOINT=B+"carousel-posts",IMAGES_ENDPOINT=B+"carousel-images",GENERATE_ENDPOINT=B+"generate-image",TPL_ENDPOINT=B+"post-templates";
 let SEL=0;
 const LIBRARY=IMG_LIBRARY;
 window.GALLERY=LIBRARY.map(im=>({src:im.src,clean:im.clean,label:im.label,remote:false}));
@@ -1107,9 +1108,63 @@ window.CHASSIS='blog';window.FORMAT='carousel';window.CHANNEL='linkedin';
 const COMBO_STYLE={'blog:carousel':'carousel','blog:single':'single','employee:carousel':'carousel','employee:single':'employee','job:single':'job','special:single':'special'};
 const COMBO_DESC={'blog:carousel':'5-slide LinkedIn story with a matching Google Business post.','blog:single':'One LinkedIn graphic with a matching Google Business post.','employee:carousel':'5-slide employee story: name, path, quote, numbers, recruit CTA. Plus GMB.','employee:single':'One employee card with a matching Google Business post.','job:single':'One job card with a matching Google Business post.','special:single':'One holiday or observance card with a matching Google Business post.'};
 function setCombo(vv){const parts=vv.split(':');window.CHASSIS=parts[0];window.FORMAT=parts[1];
-  const sel=document.getElementById('chassis_sel');if(sel&&sel.value!==vv)sel.value=vv;
-  const d=document.getElementById('combo_desc');if(d)d.textContent=COMBO_DESC[vv]||'';
-  if(window.CHANNEL==='gmb'){render();}else{setStyle(COMBO_STYLE[vv]||'carousel');}
+  const tid=parts[2]||null;const key=parts[0]+':'+parts[1];
+  const sel=document.getElementById('chassis_sel');
+  const d=document.getElementById('combo_desc');
+  if(tid){const t=(window.TEMPLATES||[]).find(function(x){return x.id===tid;});
+    if(t){window.TEMPLATE_ID=tid;
+      if(Number.isInteger(t.image_idx)&&t.image_idx<window.GALLERY.length){SEL=t.image_idx;}
+      applyDual(t.slides||{}, (t.slides&&t.slides.linkedin&&t.slides.linkedin.url)||'');
+      window.HAS_DECK=false;window.CURRENT_ID=null;window.CURRENT_TITLE='';set('posttitle','');
+      if(typeof reflectSave==='function')reflectSave();updatePromptUI();
+      if(sel&&sel.value!==vv)sel.value=vv;
+      if(d)d.textContent='Template: '+t.title+'. Paste a source and Build; Claude matches this prototype.';
+      reflectTpl();coverThumb();return;}}
+  window.TEMPLATE_ID=null;
+  if(sel&&sel.value!==key)sel.value=key;
+  if(d)d.textContent=COMBO_DESC[key]||'';
+  reflectTpl();
+  if(window.CHANNEL==='gmb'){render();}else{setStyle(COMBO_STYLE[key]||'carousel');}
+}
+/* ---- template library ---- */
+window.TEMPLATES=[];window.TEMPLATE_ID=null;
+const COMBO_NAMES=[['blog:carousel','Blog Post \u00b7 Carousel'],['blog:single','Blog Post \u00b7 Single'],['employee:carousel','Featured Employee \u00b7 Carousel'],['employee:single','Featured Employee \u00b7 Single'],['job:single','Featured Job \u00b7 Single'],['special:single','Special Day \u00b7 Single']];
+function paintCombos(){const sel=document.getElementById('chassis_sel');if(!sel)return;const cur=sel.value||'blog:carousel';
+  sel.innerHTML=COMBO_NAMES.map(function(c){
+    const tpls=(window.TEMPLATES||[]).filter(function(t){return t.chassis+':'+t.format===c[0];});
+    let h='<optgroup label="'+c[1]+'">';
+    h+='<option value="'+c[0]+'">'+c[1]+' \u00b7 Blank</option>';
+    h+=tpls.map(function(t){return '<option value="'+c[0]+':'+t.id+'">\u25c6 '+esc(t.title)+'</option>';}).join('');
+    return h+'</optgroup>';}).join('');
+  let has=false;for(let i=0;i<sel.options.length;i++){if(sel.options[i].value===cur){has=true;break;}}
+  sel.value=has?cur:'blog:carousel';
+}
+function reflectTpl(){const r=document.getElementById('tpl_row'),b=document.getElementById('tplbtn');
+  if(r)r.style.display=window.TEMPLATE_ID?'block':'none';
+  if(b)b.textContent=window.TEMPLATE_ID?'Update template':'Save as template';
+}
+async function loadTemplates(){try{const d=await call(TPL_ENDPOINT,{action:'list'});window.TEMPLATES=(d&&d.templates)||[];paintCombos();
+  try{const sg=document.getElementById('stygrid');if(sg&&sg.innerHTML&&typeof window.paintStyles==='function')window.paintStyles();}catch(e2){}
+  const q=new URLSearchParams(location.search);const tq=q.get('template');
+  if(tq&&!window.__TPL_DL){const t=window.TEMPLATES.find(function(x){return x.id===tq;});
+    if(t){window.__TPL_DL=1;if(window.openBuild)window.openBuild(t.chassis+'-'+t.format);setCombo(t.chassis+':'+t.format+':'+t.id);}}
+}catch(e){}}
+async function saveTemplate(){const btn=document.getElementById('tplbtn');const ol=btn.textContent;btn.disabled=true;btn.textContent='Saving...';
+  try{
+    let title=(v('posttitle')||'').trim();
+    if(!title&&window.TEMPLATE_ID){const t0=(window.TEMPLATES||[]).find(function(x){return x.id===window.TEMPLATE_ID;});if(t0)title=t0.title;}
+    if(!title){const hcand=window.FORMAT==='carousel'?v('c_h'):(v('sp_h')||v('fe_name')||v('fj_title')||v('fs_h')||v('c_h'));title=(hcand||'Untitled template').split('\n')[0].replace(/\*/g,'').trim()||'Untitled template';}
+    const d=await call(TPL_ENDPOINT,{action:'save',id:window.TEMPLATE_ID||undefined,title:title,chassis:window.CHASSIS,format:window.FORMAT,image_idx:SEL,slides:{_style:window.CHASSIS+'-'+window.FORMAT,chassis:window.CHASSIS,format:window.FORMAT,linkedin:collectLinkedIn(),gmb:collectGMB()}});
+    if(d&&d.template){window.TEMPLATE_ID=d.template.id;await loadTemplates();
+      const sel=document.getElementById('chassis_sel');if(sel)sel.value=window.CHASSIS+':'+window.FORMAT+':'+d.template.id;
+      const dd=document.getElementById('combo_desc');if(dd)dd.textContent='Template: '+d.template.title+'. Paste a source and Build; Claude matches this prototype.';
+      reflectTpl();status('Template saved: '+d.template.title);}
+    else{status('Template save failed: '+((d&&d.error)||'unknown'));}
+  }catch(e){status('Template save failed.');}
+  btn.disabled=false;btn.textContent=window.TEMPLATE_ID?'Update template':'Save as template';
+}
+async function deleteTemplate(){if(!window.TEMPLATE_ID)return;if(!confirm('Delete this template? This cannot be undone.'))return;
+  try{await call(TPL_ENDPOINT,{action:'delete',id:window.TEMPLATE_ID});window.TEMPLATE_ID=null;await loadTemplates();setCombo(window.CHASSIS+':'+window.FORMAT);status('Template deleted.');}catch(e){status('Delete failed.');}
 }
 function setChannel(ch){window.CHANNEL=ch;
   const a=document.getElementById('ch_li'),b=document.getElementById('ch_gmb');
@@ -1138,7 +1193,7 @@ async function aiSubmit(){
   const url=(v('ai_url')||'').trim()||'https://wideeffect.com/construction-staffing-solutions';
   const editing=window.HAS_DECK;const btn=document.getElementById('go');btn.disabled=true;const ol=btn.textContent;
   btn.textContent=editing?'Updating...':'Building...';status(editing?'Applying your change (Opus)...':'Building your deck (Opus)...');
-  const payload=editing?{mode:'edit',instruction:text,url:url,chassis:window.CHASSIS,format:window.FORMAT,current:{linkedin:collectLinkedIn(),gmb:collectGMB()}}:{src:text,url:url,chassis:window.CHASSIS,format:window.FORMAT};
+  const payload=editing?{mode:'edit',instruction:text,url:url,chassis:window.CHASSIS,format:window.FORMAT,current:{linkedin:collectLinkedIn(),gmb:collectGMB()}}:{src:text,url:url,chassis:window.CHASSIS,format:window.FORMAT,template:(function(){if(!window.TEMPLATE_ID)return undefined;const t=(window.TEMPLATES||[]).find(function(x){return x.id===window.TEMPLATE_ID;});return(t&&t.slides)?{linkedin:t.slides.linkedin,gmb:t.slides.gmb}:undefined;})()};
   try{const res=await fetch(AI_ENDPOINT,{method:'POST',headers:{'content-type':'application/json','x-we-app':APP_KEY},body:JSON.stringify(payload)});const data=await res.json();
     if(data&&data.linkedin&&data.gmb){applyDual(data,url);window.HAS_DECK=true;if(!editing){window.CURRENT_ID=null;window.CURRENT_TITLE='';set('posttitle','');reflectSave();}if(data.reply)addLog('\u2726 '+data.reply);addLog((editing?'\u270e ':'\u2605 ')+text);document.getElementById('aiprompt').value='';updatePromptUI();status('Done. Both channels updated.');if(window.innerWidth<=880)switchView('preview');btn.disabled=false;btn.textContent=ol;return;}
     const payloadOut=data&&(data.slides||(data.post?Object.assign({style:'single'},data.post):null));
@@ -1205,7 +1260,7 @@ function loadSample(){
   set('s5_eb','Make the Switch');set('s5_h','Your margin\n**stops bleeding.**');set('s5_sub','Your operations team stays focused on running jobs. We handle the rest.');set('s5_help','Get the EOR data sheet at the link.');
   set('ai_url','https://wideeffect.com/employer-of-record');coverThumb();buildGrid();syncUrl();
 }
-loadSample();updatePromptUI();loadGallery();setCombo('blog:carousel');
+loadSample();updatePromptUI();loadGallery();setCombo('blog:carousel');loadTemplates();
 
 
 async function saveInspiration(){
@@ -1229,7 +1284,7 @@ window.saveAsNew=saveAsNew;window.newPost=newPost;window.aiSubmit=aiSubmit;windo
 window.downloadPDF=downloadPDF;window.pick=pick;window.deleteImage=deleteImage;
 window.generateImage=generateImage;window.uploadFile=uploadFile;window.toggleCoverPick=toggleCoverPick;
 window.loadPost=loadPost;window.deletePost=deletePost;window.switchView=switchView;
-window.setCombo=setCombo;window.setChannel=setChannel;
+window.setCombo=setCombo;window.setChannel=setChannel;window.saveTemplate=saveTemplate;window.deleteTemplate=deleteTemplate;window.loadTemplates=loadTemplates;
 window.WB.setCombo=setCombo;window.WB.setChannel=setChannel;
 })();
 
