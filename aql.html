@@ -62,6 +62,11 @@ label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-tran
  .brain{max-height:none;padding:14px 12px 60px}
  .toolbar .hidem{display:none}
 }
+.drop{border:2px dashed rgba(253,75,72,.45);border-radius:12px;padding:22px 14px;text-align:center;cursor:pointer;margin-bottom:4px;transition:.15s}
+.drop:hover,.drop.over{border-color:var(--red);background:rgba(253,75,72,.06)}
+.drop .dz-ic{font-size:22px;color:var(--red);font-weight:900;margin-bottom:5px}
+.drop .dz-t{font-size:13px;font-weight:900}
+.drop .dz-s{font-size:10.5px;color:var(--muted);font-weight:700;letter-spacing:.06em;margin-top:3px}
 </style></head>
 <body>
 <div class="toolbar">
@@ -73,16 +78,31 @@ label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-tran
 <div class="app">
   <div class="panel">
     <div class="card hot">
-      <div class="vhead"><span class="dot"></span>Feed AQL a document</div>
-      <p class="desc">Paste meeting notes, a brochure, a transcript, data standards, anything. AQL distills it into discrete, fact-checkable knowledge entries and stores the original.</p>
-      <label>Document title</label>
-      <input type="text" id="ingesttitle" placeholder="e.g. Lance call notes, July 8">
-      <label>Document</label>
+      <div class="vhead"><span class="dot"></span>Feed AQL</div>
+      <p class="desc">Drop a file, paste a URL, or paste raw text. AQL distills everything into discrete, fact-checkable knowledge entries and archives the original.</p>
+      <div class="drop" id="drop" onclick="document.getElementById('dropfile').click()">
+        <div class="dz-ic">&#8595;</div>
+        <div class="dz-t">Drop a file here or tap to browse</div>
+        <div class="dz-s">PDF, DOCX, TXT, MD, CSV</div>
+        <input type="file" id="dropfile" accept=".pdf,.docx,.txt,.md,.csv" style="display:none" onchange="handleFile(this.files[0])">
+      </div>
+      <label>Or a URL</label>
+      <input type="text" id="ingesturl" placeholder="https://... (a page, article, or post to learn from)">
+      <label>Or paste text &middot; title</label>
+      <input type="text" id="ingesttitle" placeholder="e.g. Lance call notes, July 10">
       <textarea id="ingestraw" placeholder="Paste the raw content here..."></textarea>
       <div class="row"><button class="btn" id="ingestbtn" onclick="ingest()">Distill into AQL</button></div>
       <div class="status" id="ingeststat"></div>
     </div>
     <div class="card">
+      <div class="vhead"><span class="dot"></span>Scout the web</div>
+      <p class="desc">AQL searches the web for Wide Effect mentions, LinkedIn presence, and market news, then files what it can verify. Every scouted entry names its source.</p>
+      <label>Extra focus (optional)</label>
+      <input type="text" id="scoutfocus" placeholder="e.g. data center news this month">
+      <div class="row"><button class="btn" id="scoutbtn" onclick="scout()">Run scout</button></div>
+      <div class="status" id="scoutstat"></div>
+    </div>
+    <div class="card"><div class="card">
       <div class="vhead"><span class="dot"></span>Add one entry manually</div>
       <label>Kind</label>
       <div class="kinds" id="kinds">
@@ -164,19 +184,71 @@ async function load(){
 
 async function ingest(){
   const raw=el('ingestraw').value.trim();
-  if(raw.length<40){el('ingeststat').textContent='Paste more than a sentence or two.';return;}
+  const url=el('ingesturl').value.trim();
+  if(!raw&&!url){el('ingeststat').textContent='Drop a file, paste a URL, or paste text first.';return;}
+  if(url&&!/^https?:\/\//.test(url)){el('ingeststat').textContent='That URL needs to start with https://';return;}
   el('ingestbtn').disabled=true;el('ingeststat').textContent='AQL is reading and distilling... 20-40 seconds.';
   try{
-    const d=await call({action:'ingest',title:el('ingesttitle').value.trim()||'Untitled document',raw:raw});
+    const payload=raw?{action:'ingest',title:el('ingesttitle').value.trim()||'Untitled document',raw:raw}:{action:'ingest',url:url};
+    const d=await call(payload);
     if(d.error){el('ingeststat').textContent=d.error;}
     else{
       el('ingeststat').textContent=(d.reply||'Distilled.')+' Added '+((d.entries&&d.entries.length)||0)+' entries.';
-      el('ingestraw').value='';el('ingesttitle').value='';
+      el('ingestraw').value='';el('ingesttitle').value='';el('ingesturl').value='';
       await load();
     }
   }catch(e){el('ingeststat').textContent='Ingest failed. Try again.';}
   el('ingestbtn').disabled=false;
 }
+
+async function scout(){
+  el('scoutbtn').disabled=true;el('scoutstat').textContent='Scouting the web... 30-60 seconds.';
+  try{
+    const d=await call({action:'scout',focus:el('scoutfocus').value.trim()});
+    if(d.error)el('scoutstat').textContent=d.error;
+    else{el('scoutstat').textContent=(d.reply||'Done.')+' Filed '+((d.entries&&d.entries.length)||0)+' entries.';await load();}
+  }catch(e){el('scoutstat').textContent='Scout failed. Try again.';}
+  el('scoutbtn').disabled=false;
+}
+
+/* ---- drop zone: extract text client-side ---- */
+function loadScript(src){return new Promise((res,rej)=>{const t=document.createElement('script');t.src=src;t.onload=res;t.onerror=rej;document.head.appendChild(t);});}
+async function extractPDF(file){
+  if(!window.pdfjsLib){await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}
+  const buf=await file.arrayBuffer();
+  const pdf=await window.pdfjsLib.getDocument({data:buf}).promise;
+  let out='';
+  for(let p=1;p<=Math.min(pdf.numPages,40);p++){const page=await pdf.getPage(p);const tc=await page.getTextContent();out+=tc.items.map(i=>i.str).join(' ')+'\n\n';}
+  return out;
+}
+async function extractDOCX(file){
+  if(!window.mammoth)await loadScript('https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js');
+  const buf=await file.arrayBuffer();
+  const r=await window.mammoth.extractRawText({arrayBuffer:buf});
+  return r.value||'';
+}
+async function handleFile(file){
+  if(!file)return;
+  el('ingeststat').textContent='Reading '+file.name+'...';
+  try{
+    let text='';
+    const ext=(file.name.split('.').pop()||'').toLowerCase();
+    if(ext==='pdf')text=await extractPDF(file);
+    else if(ext==='docx')text=await extractDOCX(file);
+    else text=await file.text();
+    text=(text||'').replace(/\s+\n/g,'\n').trim();
+    if(text.length<40){el('ingeststat').textContent='Could not read useful text from that file.';return;}
+    el('ingestraw').value=text.slice(0,60000);
+    if(!el('ingesttitle').value)el('ingesttitle').value=file.name;
+    el('ingeststat').textContent='Loaded '+file.name+' ('+text.split(/\s+/).length+' words). Hit Distill.';
+  }catch(e){el('ingeststat').textContent='Could not read that file: '+e;}
+}
+(function(){
+  const dz=el('drop');
+  ['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('over');}));
+  ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('over');}));
+  dz.addEventListener('drop',e=>{const f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f)handleFile(f);});
+})();
 
 async function addEntry(){
   const content=el('addcontent').value.trim();
