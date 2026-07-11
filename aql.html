@@ -314,6 +314,9 @@ label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-tran
   #webuild .preview{height:auto;min-height:60vh}
   #webuild .grid{grid-template-columns:repeat(2,1fr);gap:8px}
 }
+#webuild .chantabs{display:flex;gap:8px;justify-content:center;margin-bottom:10px}
+#webuild .chantabs button{font-family:inherit;font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;padding:8px 16px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.5);cursor:pointer}
+#webuild .chantabs button.on{color:#fff;border-color:rgba(253,75,72,.55);background:rgba(253,75,72,.1)}
 /* neutralize AQL's global .plus button styling inside rendered slides */
 #webuild .slide .plus{width:auto;height:auto;border-radius:0;background:transparent;border:none;cursor:default;transition:none}
 </style>
@@ -489,24 +492,21 @@ label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-tran
         <div class="vhead"><span class="dot"></span><span id="promptTitle">Build with AI</span></div>
         <div class="desc" id="promptDesc">Paste your post or describe it. Claude builds the 5-slide deck on brand.</div>
         <textarea id="aiprompt" placeholder="Paste a LinkedIn post, blog excerpt, or notes..."></textarea>
-        <div class="row"><button class="btn" id="go" onclick="aiSubmit()">Build deck</button><button class="btn ghost" id="newbtn" onclick="newDeck()" style="display:none">New</button></div>
+        <div class="row"><button class="btn" id="go" onclick="aiSubmit()">Build post</button><button class="btn ghost" id="newbtn" onclick="newDeck()" style="display:none">New</button></div>
         <div id="ai_status" class="status"></div>
         <div id="log" class="log"></div>
       </div>
       <div class="card">
-        <div class="card-h">Post style</div>
-        <div class="chlabel">LinkedIn</div>
-        <div class="stylechips" id="stylechips">
-          <button class="on" data-st="carousel" onclick="setStyle('carousel')">5-Slide Carousel</button>
-          <button data-st="single" onclick="setStyle('single')">Single Post</button>
-          <button data-st="employee" onclick="setStyle('employee')">Featured Employee</button>
-          <button data-st="job" onclick="setStyle('job')">Featured Job</button>
-          <button data-st="special" onclick="setStyle('special')">Special Day</button>
-        </div>
-        <div class="chlabel">Google Business</div>
-        <div class="stylechips" id="stylechips2">
-          <button data-st="gmb" onclick="setStyle('gmb')">GMB Post</button>
-        </div>
+        <div class="card-h">Post structure</div>
+        <select id="chassis_sel" onchange="setCombo(this.value)" style="width:100%;font-family:inherit;font-size:14px;font-weight:700;color:#fff;background:var(--field,#0c111a);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:11px">
+          <option value="blog:carousel">Blog Post · Carousel</option>
+          <option value="blog:single">Blog Post · Single</option>
+          <option value="employee:carousel">Featured Employee · Carousel</option>
+          <option value="employee:single">Featured Employee · Single</option>
+          <option value="job:single">Featured Job · Single</option>
+          <option value="special:single">Special Day · Single</option>
+        </select>
+        <div class="desc" id="combo_desc" style="margin:9px 0 0"></div>
       </div>
       <div class="card" id="styleFields" style="display:none">
         <div id="sf-employee" style="display:none">
@@ -543,7 +543,7 @@ compounds
           <label>Sub line</label><input type="text" id="sp_sub" value="Wide Effect centralizes payroll, tax, workers' comp, and employment administration across all 50 states." oninput="render()">
         </div>
         <div id="sf-gmb" style="display:none">
-          <div class="card-h">Google Business Post</div>
+          <div class="card-h">Google Business Channel (generated with every build)</div>
           <label>Image eyebrow</label><input type="text" id="gm_eb" value="Data Center Staffing" oninput="render()">
           <label>Image headline (line break = new line, **stars** = red)</label><textarea id="gm_h" rows="3" oninput="render()">Licensed electricians,
 **mobilized in days.**</textarea>
@@ -592,7 +592,8 @@ compounds
       </div></details>
           </div>
           <div class="preview">
-    <div class="preview-tag">Live preview · 1080 × 1350 · true Lato</div>
+    <div class="chantabs"><button id="ch_li" class="on" onclick="setChannel('linkedin')">LinkedIn</button><button id="ch_gmb" onclick="setChannel('gmb')">Google Business</button></div>
+    <div class="preview-tag" id="preview_tag">Live preview · true Lato</div>
     <div id="deck"></div>
   </div>
         </div>
@@ -820,14 +821,14 @@ async function brandSynth(){
 load();
 
 /* ================= SOCIAL TAB ================= */
-const CHANNELS={li:'LinkedIn',gb:'Google Business'};
+const CHANNELS={li:'LinkedIn',gb:'Google Business',du:'LinkedIn + GMB'};
 const POST_TYPES=[
- {id:'carousel',ch:'li',name:'5-Slide Carousel',spec:'1080\u00d71350 \u00b7 PDF document upload',bp:'Slide 1 stops the scroll on its own. One idea per slide. QR call to action closes the deck.'},
- {id:'single',ch:'li',name:'Single Post',spec:'1080\u00d71350 \u00b7 PNG',bp:'One sharp hook over a photo, one landing line, QR chip. Exactly one red accent line.'},
- {id:'employee',ch:'li',name:'Featured Employee',spec:'1080\u00d71350 \u00b7 PNG',bp:'Real person, real quote in their voice. Name, trade, one detail line. Never invented.'},
- {id:'job',ch:'li',name:'Featured Job',spec:'1080\u00d71350 \u00b7 PNG',bp:'Role with red trade accent, location, pay basis (no dollar amounts unless sourced), 3-5 requirements.'},
- {id:'special',ch:'li',name:'Special Day',spec:'1080\u00d71350 \u00b7 PNG',bp:'Ties the occasion to craft workers and building. Warm one-line close. No politics.'},
- {id:'gmb',ch:'gb',name:'GMB Post',spec:'1200\u00d7900 image \u00b7 \u22641500 chars',bp:'First 100 characters carry the message (Google truncates). No hashtags. One CTA button: Learn more, Call now, Sign up, Book, or Get offer.'}
+ {id:'blog-carousel',ch:'du',name:'Blog Post \u00b7 Carousel',spec:'LI 1080\u00d71350 PDF + GMB 1200\u00d7900',bp:'5-slide argument: cover, problem, cost, solution, QR call to action. Slide 1 stops the scroll on its own.'},
+ {id:'blog-single',ch:'du',name:'Blog Post \u00b7 Single',spec:'LI 1080\u00d71350 PNG + GMB 1200\u00d7900',bp:'One sharp hook over a photo, one landing line, QR chip. Exactly one red accent line.'},
+ {id:'employee-carousel',ch:'du',name:'Featured Employee \u00b7 Carousel',spec:'LI 1080\u00d71350 PDF + GMB 1200\u00d7900',bp:'Story arc: name cover, their path, pull quote, by-the-numbers, join-the-crew CTA. Never invented.'},
+ {id:'employee-single',ch:'du',name:'Featured Employee \u00b7 Single',spec:'LI 1080\u00d71350 PNG + GMB 1200\u00d7900',bp:'Real person, real quote in their voice. Name, trade, one detail line. Never invented.'},
+ {id:'job-single',ch:'du',name:'Featured Job \u00b7 Single',spec:'LI 1080\u00d71350 PNG + GMB 1200\u00d7900',bp:'Role with red trade accent, location, pay basis (no dollar amounts unless sourced), 3-5 requirements.'},
+ {id:'special-single',ch:'du',name:'Special Day \u00b7 Single',spec:'LI 1080\u00d71350 PNG + GMB 1200\u00d7900',bp:'Ties the occasion to craft workers and building. Warm one-line close. No politics.'}
 ];
 const STYLE_TAG=id=>'['+id+']';
 function inspCountFor(id){return ENTRIES.filter(e=>e.source==='inspiration'&&(e.title||'').includes(STYLE_TAG(id))).length;}
@@ -839,7 +840,7 @@ function paintStyles(){
      +'<div class="sy-spec">'+t.spec+'</div>'
      +'<div class="sy-bp">'+t.bp+'</div>'
      +'<div class="sy-insp"><b>'+n+'</b> inspiration'+(n===1?'':'s')+' filed</div>'
-     +'<div class="sy-row"><a href="?style='+t.id+'" onclick="openBuild(\''+t.id+'\');return false">Build one</a><button onclick="toggleInsp(\''+t.id+'\')">+ Inspiration</button></div>'
+     +'<div class="sy-row"><a href="?chassis='+t.id.split('-')[0]+'&format='+t.id.split('-')[1]+'" onclick="openBuild(\''+t.id+'\');return false">Build one</a><button onclick="toggleInsp(\''+t.id+'\')">+ Inspiration</button></div>'
      +'<div class="sy-add" id="ia_'+t.id+'"><textarea id="it_'+t.id+'" placeholder="Paste an example post or a style note for '+t.name+'..."></textarea><button class="btn" onclick="saveInsp(\''+t.id+'\')">File into AQL</button><div class="status" id="is_'+t.id+'"></div></div>'
      +'</div>';
   }).join('');
@@ -857,7 +858,7 @@ async function saveInsp(id){
     else el('is_'+id).textContent=(d&&d.error)||'Failed.';
   }catch(e){el('is_'+id).textContent='Failed. Try again.';}
 }
-const SLABEL={carousel:'Carousels',single:'LinkedIn Singles',employee:'Featured Employees',job:'Featured Jobs',special:'Special Days',gmb:'GMB Posts'};
+const SLABEL={'blog-carousel':'Blog Carousels','blog-single':'Blog Singles','employee-carousel':'Employee Story Carousels','employee-single':'Featured Employees','job-single':'Featured Jobs','special-single':'Special Days',carousel:'Carousels (legacy)',single:'LinkedIn Singles (legacy)',employee:'Featured Employees (legacy)',job:'Featured Jobs (legacy)',special:'Special Days (legacy)',gmb:'GMB Posts (legacy)'};
 async function loadSavedPosts(){
   try{
     const r=await fetch(FN+'carousel-posts',{method:'POST',headers:{'content-type':'application/json','x-we-app':APP_KEY},body:JSON.stringify({action:'list'})});
@@ -865,7 +866,7 @@ async function loadSavedPosts(){
     const posts=(d&&d.posts)||[];
     el('pcount').textContent=posts.length+' posts';
     if(!posts.length){el('postgrid').innerHTML='<div class="empty">No saved posts yet. Build some in Social Studio.</div>';return;}
-    const order=['carousel','single','employee','job','special','gmb'];
+    const order=['blog-carousel','blog-single','employee-carousel','employee-single','job-single','special-single','carousel','single','employee','job','special','gmb'];
     let h='';
     order.forEach(k=>{
       const grp=posts.filter(p=>(p.style||'carousel')===k);
@@ -924,7 +925,10 @@ function socialLoad(){paintStyles();loadSavedPosts();loadImages();}
 
 /* ---- consolidation glue: sub-views + build openers ---- */
 function socialSub(w){const b=w==='build';el('social_overview').style.display=b?'none':'block';el('webuild').style.display=b?'block':'none';el('sub_overview').classList.toggle('on',!b);el('sub_build').classList.toggle('on',b);if(b&&window.WB){setTimeout(function(){WB.fitScale();WB.render();},30);}}
-function openBuild(st){railTab('social');socialSub('build');if(window.WB)WB.setStyle(st);}
+function openBuild(st){railTab('social');socialSub('build');if(!window.WB)return;
+  if(st.indexOf('-')>0){WB.setCombo(st.replace('-',':'));}
+  else if(st==='gmb'){WB.setCombo('blog:single');WB.setChannel('gmb');}
+  else{const m={carousel:'blog:carousel',single:'blog:single',employee:'employee:single',job:'job:single',special:'special:single'};WB.setCombo(m[st]||'blog:carousel');}}
 function openBuildPost(id){railTab('social');socialSub('build');if(window.WB)WB.loadPost(id);}
 /* =============== END SOCIAL TAB =============== */
 </script>
@@ -1089,13 +1093,43 @@ function applyJSON(j,url){
   const ct=j.cta||{};set('s5_eb',ct.eyebrow);set('s5_h',ct.headline);set('s5_sub',ct.sub);set('s5_help',ct.help||'Get the data sheet at the link.');
   set('ai_url',ct.url||url||v('ai_url'));syncUrl();
 }
-function collectJSON(){
-  if(window.STYLE&&window.STYLE!=='carousel'){return collectSingle();}
+function collectCarousel(){
   const prob=v('s2_type')==='plus'?{type:'plus',eyebrow:v('s2_eb'),headline:v('s2_h'),items:lines(v('s2_items')),close:v('s2_close')}:{type:'statement',eyebrow:v('s2_eb'),headline:v('s2_h'),body:v('s2_body'),kicker:v('s2_kick')};
   const sol=v('s4_type')==='lines'?{type:'lines',eyebrow:v('s4_eb'),headline:v('s4_h'),body:v('s4_body'),lines:lines(v('s4_lines'))}:{type:'statement',eyebrow:v('s4_eb'),headline:v('s4_h'),body:v('s4_body'),kicker:v('s4_kick')};
   return {cover:{eyebrow:v('c_eb'),headline:v('c_h'),sub:v('c_sub')},problem:prob,cost:{eyebrow:v('s3_eb'),headline:v('s3_h'),body:v('s3_body'),kicker:v('s3_kick')},solution:sol,cta:{eyebrow:v('s5_eb'),headline:v('s5_h'),sub:v('s5_sub'),url:v('ai_url'),help:v('s5_help')}};
 }
-function updatePromptUI(){document.getElementById('promptTitle').textContent=window.HAS_DECK?'Refine with AI':'Build with AI';document.getElementById('promptDesc').textContent=window.HAS_DECK?'Tell Claude what to change. e.g. "make the cover punchier", "lead with the retirement stat".':'Paste your post or describe it. Claude builds the 5-slide deck on brand.';document.getElementById('aiprompt').placeholder=window.HAS_DECK?'What should change?':'Paste a LinkedIn post, blog excerpt, or notes...';document.getElementById('go').textContent=window.HAS_DECK?'Update deck':'Build deck';document.getElementById('newbtn').style.display=window.HAS_DECK?'':'none';}
+function collectJSON(){
+  if(window.STYLE&&window.STYLE!=='carousel'){return collectSingle();}
+  return collectCarousel();
+}
+/* ---- chassis x format matrix + dual channel ---- */
+window.CHASSIS='blog';window.FORMAT='carousel';window.CHANNEL='linkedin';
+const COMBO_STYLE={'blog:carousel':'carousel','blog:single':'single','employee:carousel':'carousel','employee:single':'employee','job:single':'job','special:single':'special'};
+const COMBO_DESC={'blog:carousel':'5-slide LinkedIn story with a matching Google Business post.','blog:single':'One LinkedIn graphic with a matching Google Business post.','employee:carousel':'5-slide employee story: name, path, quote, numbers, recruit CTA. Plus GMB.','employee:single':'One employee card with a matching Google Business post.','job:single':'One job card with a matching Google Business post.','special:single':'One holiday or observance card with a matching Google Business post.'};
+function setCombo(vv){const parts=vv.split(':');window.CHASSIS=parts[0];window.FORMAT=parts[1];
+  const sel=document.getElementById('chassis_sel');if(sel&&sel.value!==vv)sel.value=vv;
+  const d=document.getElementById('combo_desc');if(d)d.textContent=COMBO_DESC[vv]||'';
+  if(window.CHANNEL==='gmb'){render();}else{setStyle(COMBO_STYLE[vv]||'carousel');}
+}
+function setChannel(ch){window.CHANNEL=ch;
+  const a=document.getElementById('ch_li'),b=document.getElementById('ch_gmb');
+  if(a)a.classList.toggle('on',ch==='linkedin');if(b)b.classList.toggle('on',ch==='gmb');
+  setStyle(ch==='gmb'?'gmb':(COMBO_STYLE[window.CHASSIS+':'+window.FORMAT]||'carousel'));
+}
+function collectLinkedIn(){const st=COMBO_STYLE[window.CHASSIS+':'+window.FORMAT]||'carousel';
+  if(st==='carousel')return collectCarousel();
+  const saved=window.STYLE;window.STYLE=st;const r=collectSingle();window.STYLE=saved;return r;
+}
+function collectGMB(){return{eyebrow:v('gm_eb'),headline:v('gm_h'),text:v('gm_text'),cta_label:v('gm_cta')||'Learn more',url:v('ai_url')};}
+function applyDual(d,url){
+  if(d.chassis&&d.format){window.CHASSIS=d.chassis;window.FORMAT=d.format;const sel=document.getElementById('chassis_sel');if(sel)sel.value=d.chassis+':'+d.format;const dd=document.getElementById('combo_desc');if(dd)dd.textContent=COMBO_DESC[d.chassis+':'+d.format]||'';}
+  const g=d.gmb||{};set('gm_eb',g.eyebrow||'');set('gm_h',g.headline||'');set('gm_text',g.text||'');set('gm_cta',g.cta_label||'Learn more');gmbCount();
+  const li=d.linkedin||{};
+  if(li.cover){const saved=window.STYLE;window.STYLE='carousel';applyJSON(li,url);window.STYLE=saved;}
+  else{applySingle(li);if(url&&!li.url)set('ai_url',url);}
+  setChannel(window.CHANNEL||'linkedin');
+}
+function updatePromptUI(){document.getElementById('promptTitle').textContent=window.HAS_DECK?'Refine with AI':'Build with AI';document.getElementById('promptDesc').textContent=window.HAS_DECK?'Tell Claude what to change on either channel. e.g. "make the cover punchier", "shorten the GMB text".':'Paste a blog, transcript, or notes. Claude builds the LinkedIn creative and its Google Business companion on brand.';document.getElementById('aiprompt').placeholder=window.HAS_DECK?'What should change?':'Paste a LinkedIn post, blog excerpt, or notes...';document.getElementById('go').textContent=window.HAS_DECK?'Update post':'Build post';document.getElementById('newbtn').style.display=window.HAS_DECK?'':'none';}
 function addLog(t){const l=document.getElementById('log');const d=document.createElement('div');d.className='item';d.textContent=t;l.insertBefore(d,l.firstChild);}
 function newDeck(){window.HAS_DECK=false;window.CURRENT_ID=null;window.CURRENT_TITLE='';document.getElementById('log').innerHTML='';loadSample();updatePromptUI();status('');reflectSave();}
 
@@ -1104,8 +1138,9 @@ async function aiSubmit(){
   const url=(v('ai_url')||'').trim()||'https://wideeffect.com/construction-staffing-solutions';
   const editing=window.HAS_DECK;const btn=document.getElementById('go');btn.disabled=true;const ol=btn.textContent;
   btn.textContent=editing?'Updating...':'Building...';status(editing?'Applying your change (Opus)...':'Building your deck (Opus)...');
-  const payload=editing?{mode:'edit',instruction:text,url:url,current:collectJSON(),style:window.STYLE}:{src:text,url:url,style:window.STYLE};
+  const payload=editing?{mode:'edit',instruction:text,url:url,chassis:window.CHASSIS,format:window.FORMAT,current:{linkedin:collectLinkedIn(),gmb:collectGMB()}}:{src:text,url:url,chassis:window.CHASSIS,format:window.FORMAT};
   try{const res=await fetch(AI_ENDPOINT,{method:'POST',headers:{'content-type':'application/json','x-we-app':APP_KEY},body:JSON.stringify(payload)});const data=await res.json();
+    if(data&&data.linkedin&&data.gmb){applyDual(data,url);window.HAS_DECK=true;if(!editing){window.CURRENT_ID=null;window.CURRENT_TITLE='';set('posttitle','');reflectSave();}if(data.reply)addLog('\u2726 '+data.reply);addLog((editing?'\u270e ':'\u2605 ')+text);document.getElementById('aiprompt').value='';updatePromptUI();status('Done. Both channels updated.');if(window.innerWidth<=880)switchView('preview');btn.disabled=false;btn.textContent=ol;return;}
     const payloadOut=data&&(data.slides||(data.post?Object.assign({style:'single'},data.post):null));
     if(payloadOut){applyJSON(payloadOut,url);window.HAS_DECK=true;if(!editing){window.CURRENT_ID=null;window.CURRENT_TITLE='';set('posttitle','');reflectSave();}addLog((editing?'\u270e ':'\u2605 ')+text);document.getElementById('aiprompt').value='';updatePromptUI();status('Done.');if(window.innerWidth<=880)switchView('preview');}
     else status('Error: '+((data&&data.error)||'unexpected response'));
@@ -1121,10 +1156,10 @@ function reflectSave(){
 }
 async function savePost(){
   if(!window.HAS_DECK){status2('Build a deck first.');return;}
-  let title=(v('posttitle')||'').trim();if(!title){title=window.CURRENT_TITLE||(v('c_h')||'Untitled').split('\n')[0].replace(/\*/g,'').trim()||'Untitled';}
+  let title=(v('posttitle')||'').trim();if(!title){const hcand=window.FORMAT==='carousel'?v('c_h'):(v('sp_h')||v('fe_name')||v('fj_title')||v('fs_h')||v('c_h'));title=window.CURRENT_TITLE||(hcand||'Untitled').split('\n')[0].replace(/\*/g,'').trim()||'Untitled';}
   const updating=!!window.CURRENT_ID;
   status2(updating?'Updating...':'Saving...');
-  try{const d=await call(POSTS_ENDPOINT,{action:'save',title:title,url:v('ai_url'),image_idx:SEL,slides:collectJSON(),id:window.CURRENT_ID||undefined});
+  try{const d=await call(POSTS_ENDPOINT,{action:'save',title:title,url:v('ai_url'),image_idx:SEL,slides:{_style:window.CHASSIS+'-'+window.FORMAT,chassis:window.CHASSIS,format:window.FORMAT,linkedin:collectLinkedIn(),gmb:collectGMB()},id:window.CURRENT_ID||undefined});
     if(d&&d.post){window.CURRENT_ID=d.post.id;window.CURRENT_TITLE=d.post.title||title;set('posttitle',window.CURRENT_TITLE);reflectSave();listPosts();status2(updating?'Updated.':'Saved.');setTimeout(()=>status2(''),2000);}
     else status2('Save failed.');}catch(e){status2('Save failed.');}
 }
@@ -1136,7 +1171,11 @@ async function loadInto(id){const d=await call(POSTS_ENDPOINT,{action:'get',id:i
 async function togglePost(id){const panel=document.getElementById('edit_'+id);const card=document.getElementById('post_'+id);if(!panel)return;const isOpen=panel.style.display!=='none';document.querySelectorAll('.post-edit').forEach(e=>e.style.display='none');document.querySelectorAll('.post').forEach(e=>e.classList.remove('open'));if(isOpen)return;panel.style.display='block';if(card)card.classList.add('open');pestatSet(id,'Loading...');const ok=await loadInto(id);pestatSet(id,ok?'Loaded — edit and Save changes.':'Load failed.');}
 async function refineInline(id){const ins=(v('peref_'+id)||'').trim();if(!ins){pestatSet(id,'Type a change first.');return;}if(window.CURRENT_ID!==id){const ok=await loadInto(id);if(!ok){pestatSet(id,'Could not load.');return;}}const b=document.getElementById('perefbtn_'+id);if(b)b.disabled=true;pestatSet(id,'Refining (Opus, ~15s)...');try{const res=await fetch(AI_ENDPOINT,{method:'POST',headers:{'content-type':'application/json','x-we-app':APP_KEY},body:JSON.stringify({mode:'edit',instruction:ins,url:v('ai_url'),current:collectJSON()})});const data=await res.json();if(data&&data.slides){applyJSON(data.slides,v('ai_url'));coverThumb();set('peref_'+id,'');const h=(v('c_h')||'').split('\n')[0].replace(/\*/g,'').trim();pestatSet(id,'Cover now: “'+h+'” — Save changes to keep.');}else pestatSet(id,'Error: '+((data&&data.error)||'unexpected'));}catch(e){pestatSet(id,'Refine failed.');}if(b)b.disabled=false;}
 async function saveInline(id){if(window.CURRENT_ID!==id){const ok=await loadInto(id);if(!ok){pestatSet(id,'Could not load to save.');return;}}let title=(v('petitle_'+id)||'').trim()||window.CURRENT_TITLE||'Untitled';pestatSet(id,'Saving...');try{const d=await call(POSTS_ENDPOINT,{action:'save',id:id,title:title,url:v('ai_url'),image_idx:SEL,slides:collectJSON()});if(d&&d.post){window.CURRENT_TITLE=d.post.title||title;const span=document.querySelector('#post_'+id+' .ptitle');if(span)span.textContent=window.CURRENT_TITLE;pestatSet(id,'Saved ✓');setTimeout(()=>pestatSet(id,'Loaded — edit and Save changes.'),2200);}else pestatSet(id,'Save failed.');}catch(e){pestatSet(id,'Save failed.');}}
-async function loadPost(id){status2('Loading...');try{const d=await call(POSTS_ENDPOINT,{action:'get',id:id});if(d&&d.post){const p=d.post;if(Number.isInteger(p.image_idx)&&p.image_idx<window.GALLERY.length)SEL=p.image_idx;applyJSON(p.slides,p.url);window.HAS_DECK=true;window.CURRENT_ID=p.id;window.CURRENT_TITLE=p.title;set('posttitle',p.title);reflectSave();document.getElementById('log').innerHTML='';addLog('Loaded: '+p.title);updatePromptUI();coverThumb();buildGrid();status2('');switchView('studio');}else status2('Load failed.');}catch(e){status2('Load failed.');}}
+async function loadPost(id){status2('Loading...');try{const d=await call(POSTS_ENDPOINT,{action:'get',id:id});if(d&&d.post){const p=d.post;if(Number.isInteger(p.image_idx)&&p.image_idx<window.GALLERY.length)SEL=p.image_idx;
+    const sl=p.slides||{};
+    if(sl.linkedin){window.CHANNEL='linkedin';applyDual(sl,p.url);}
+    else{const st=sl.style||'carousel';const m={carousel:'blog:carousel',single:'blog:single',employee:'employee:single',job:'job:single',special:'special:single',gmb:'blog:single'};const combo=m[st]||'blog:carousel';const parts=combo.split(':');window.CHASSIS=parts[0];window.FORMAT=parts[1];const sel2=document.getElementById('chassis_sel');if(sel2)sel2.value=combo;const dd2=document.getElementById('combo_desc');if(dd2)dd2.textContent=COMBO_DESC[combo]||'';window.CHANNEL=(st==='gmb')?'gmb':'linkedin';const ca=document.getElementById('ch_li'),cb=document.getElementById('ch_gmb');if(ca)ca.classList.toggle('on',window.CHANNEL==='linkedin');if(cb)cb.classList.toggle('on',window.CHANNEL==='gmb');applyJSON(sl,p.url);}
+    window.HAS_DECK=true;window.CURRENT_ID=p.id;window.CURRENT_TITLE=p.title;set('posttitle',p.title);reflectSave();document.getElementById('log').innerHTML='';addLog('Loaded: '+p.title);updatePromptUI();coverThumb();buildGrid();status2('');switchView('studio');}else status2('Load failed.');}catch(e){status2('Load failed.');}}
 async function deletePost(id){if(!confirm('Delete this post?'))return;try{await call(POSTS_ENDPOINT,{action:'delete',id:id});if(window.CURRENT_ID===id){window.CURRENT_ID=null;window.CURRENT_TITLE='';set('posttitle','');reflectSave();}listPosts();}catch(e){}}
 
 async function loadGallery(){try{const d=await call(IMAGES_ENDPOINT,{action:'list'});const imgs=(d&&d.images)||[];const have=new Set(window.GALLERY.filter(g=>g.remote).map(g=>g.id));imgs.forEach(im=>{if(!have.has(im.id))window.GALLERY.push({id:im.id,src:im.url,clean:true,remote:true,label:im.prompt||'Generated'});});buildGrid();coverThumb();}catch(e){buildGrid();}}
@@ -1166,7 +1205,7 @@ function loadSample(){
   set('s5_eb','Make the Switch');set('s5_h','Your margin\n**stops bleeding.**');set('s5_sub','Your operations team stays focused on running jobs. We handle the rest.');set('s5_help','Get the EOR data sheet at the link.');
   set('ai_url','https://wideeffect.com/employer-of-record');coverThumb();buildGrid();syncUrl();
 }
-loadSample();updatePromptUI();loadGallery();
+loadSample();updatePromptUI();loadGallery();setCombo('blog:carousel');
 
 
 async function saveInspiration(){
@@ -1190,13 +1229,16 @@ window.saveAsNew=saveAsNew;window.newPost=newPost;window.aiSubmit=aiSubmit;windo
 window.downloadPDF=downloadPDF;window.pick=pick;window.deleteImage=deleteImage;
 window.generateImage=generateImage;window.uploadFile=uploadFile;window.toggleCoverPick=toggleCoverPick;
 window.loadPost=loadPost;window.deletePost=deletePost;window.switchView=switchView;
+window.setCombo=setCombo;window.setChannel=setChannel;
+window.WB.setCombo=setCombo;window.WB.setChannel=setChannel;
 })();
 
 (function(){
   const q=new URLSearchParams(location.search);
-  const st=q.get('style'), pid=q.get('post');
+  const st=q.get('style'), pid=q.get('post'), ch=q.get('chassis'), fm=q.get('format');
   if(pid){openBuildPost(pid);}
-  else if(st&&['carousel','single','employee','job','special','gmb'].includes(st)){openBuild(st);}
+  else if(ch&&fm&&['blog:carousel','blog:single','employee:carousel','employee:single','job:single','special:single'].includes(ch+':'+fm)){openBuild(ch+'-'+fm);}
+  else if(st&&(st.indexOf('-')>0||['carousel','single','employee','job','special','gmb'].includes(st))){openBuild(st);}
 })();
 </script>
 </body></html>
