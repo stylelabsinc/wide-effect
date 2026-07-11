@@ -100,6 +100,38 @@ label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-tran
  .content{max-height:none;padding:14px 12px 70px}
  .toolbar .hidem{display:none}
 }
+.stygrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:1000px){.stygrid{grid-template-columns:1fr}}
+.sty{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:7px}
+.sty .sy-top{display:flex;align-items:center;gap:8px}
+.sty .sy-name{font-size:13.5px;font-weight:900;flex:1}
+.sty .sy-ch{font-size:8.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;border-radius:5px;padding:2px 7px}
+.sty .sy-ch.li{color:#8ec2ff;background:rgba(80,150,255,.12);border:1px solid rgba(80,150,255,.3)}
+.sty .sy-ch.gb{color:#8fe2a8;background:rgba(90,220,140,.1);border:1px solid rgba(90,220,140,.3)}
+.sty .sy-spec{font-size:10.5px;font-weight:700;letter-spacing:.05em;color:var(--muted)}
+.sty .sy-bp{font-size:11.5px;line-height:1.5;color:rgba(255,255,255,.7)}
+.sty .sy-insp{font-size:10.5px;color:var(--muted);font-weight:700}
+.sty .sy-insp b{color:#fff}
+.sty .sy-row{display:flex;gap:7px;margin-top:auto;padding-top:6px}
+.sty .sy-row button,.sty .sy-row a{flex:1;text-align:center;text-decoration:none;font-family:inherit;font-size:10.5px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;border-radius:7px;padding:8px 6px;cursor:pointer}
+.sty .sy-row a{background:var(--red);color:#fff;border:none}
+.sty .sy-row button{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.sty .sy-row button:hover{color:#fff;border-color:var(--red)}
+.sty .sy-add{display:none;margin-top:6px}
+.sty .sy-add.open{display:block}
+.sty .sy-add textarea{min-height:56px;font-size:12px}
+.sty .sy-add .btn{width:100%;margin-top:7px;font-size:11px;padding:8px}
+.postgrid .pgroup{margin-bottom:16px}
+.postgrid .pgh{font-size:10px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:var(--red);margin-bottom:7px;display:flex;align-items:center;gap:8px}
+.postgrid .pgh::after{content:'';flex:1;height:1px;background:var(--line)}
+.postgrid .prow{display:flex;align-items:center;gap:9px;background:var(--card);border:1px solid var(--line);border-radius:9px;padding:9px 12px;margin-bottom:6px}
+.postgrid .prow .pt{flex:1;font-size:12.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.postgrid .prow .pd{font-size:9.5px;color:var(--muted);font-weight:700}
+.postgrid .prow a{font-size:9.5px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:transparent;border:1px solid var(--line);border-radius:6px;padding:5px 9px;text-decoration:none;white-space:nowrap}
+.postgrid .prow a:hover{border-color:var(--red)}
+.imggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:7px}
+.imggrid img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:8px;border:1px solid var(--line);display:block}
+.imgnote{font-size:11px;color:var(--muted);line-height:1.5;margin-top:8px}
 </style></head>
 <body>
 <div class="toolbar">
@@ -113,6 +145,7 @@ label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-tran
     <button id="rail_feed" class="on" onclick="railTab('feed')"><span class="ric"></span>Feed</button>
     <button id="rail_scout" onclick="railTab('scout')"><span class="ric"></span>Scout</button>
     <button id="rail_brand" onclick="railTab('brand')"><span class="ric"></span>Brand Guide</button>
+    <button id="rail_social" onclick="railTab('social')"><span class="ric"></span>Social</button>
     <div class="rnote">Everything AQL learns flows into Campaign Studio, Social Studio, and Data Sheet Studio automatically.</div>
   </div>
   <div class="content">
@@ -248,6 +281,19 @@ label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-tran
       </div>
     </div>
 
+
+    <!-- ============ SOCIAL ============ -->
+    <div class="view" id="view_social" style="display:none">
+      <div class="vtitle"><h2>Social</h2></div>
+      <p class="vdesc">The social brain: post types per channel with their locked best practices, style inspirations that every generator learns from, the saved-post gallery, and the shared image library.</p>
+      <div class="shead" style="margin-top:0"><span class="st">Post types</span></div>
+      <div class="stygrid" id="stygrid"></div>
+      <div class="shead"><span class="st">Saved posts</span><span class="count" id="pcount"></span></div>
+      <div class="postgrid" id="postgrid"><div class="empty">Loading saved posts...</div></div>
+      <div class="shead"><span class="st">Image library</span><span class="count" id="icount"></span></div>
+      <div class="imggrid" id="imggrid"></div>
+      <div class="imgnote" id="imgnote">The 10 built-in brand photos live inside the studios and are always available there. Uploaded and generated images appear here. Add more from Social Studio's Gallery view, or generate once the OpenAI key is set.</div>
+    </div>
   </div>
 </div>
 <script>
@@ -261,7 +307,7 @@ async function call(body){const r=await fetch(FN+'aql',{method:'POST',headers:{'
 function flash(m){el('topstat').textContent=m;setTimeout(()=>{el('topstat').textContent='';},2500);}
 
 /* ---- rail ---- */
-function railTab(t){['feed','scout','brand'].forEach(k=>{el('rail_'+k).classList.toggle('on',k===t);el('view_'+k).style.display=k===t?'block':'none';});if(t==='brand'&&!railTab._b){railTab._b=1;brandLoad();}}
+function railTab(t){['feed','scout','brand','social'].forEach(k=>{el('rail_'+k).classList.toggle('on',k===t);el('view_'+k).style.display=k===t?'block':'none';});if(t==='brand'&&!railTab._b){railTab._b=1;brandLoad();}if(t==='social'&&!railTab._s){railTab._s=1;socialLoad();}}
 function togglePlus(){const o=el('intake').classList.toggle('open');el('plusbtn').classList.toggle('open',o);}
 function pickMode(m){MODE=m;document.querySelectorAll('.modes button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));['file','url','text','mention','manual'].forEach(k=>el('mp_'+k).classList.toggle('on',k===m));}
 function pickKind(k){KIND=k;document.querySelectorAll('#kinds button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));}
@@ -445,5 +491,75 @@ async function brandSynth(){
 }
 
 load();
+
+/* ================= SOCIAL TAB ================= */
+const CHANNELS={li:'LinkedIn',gb:'Google Business'};
+const POST_TYPES=[
+ {id:'carousel',ch:'li',name:'5-Slide Carousel',spec:'1080\u00d71350 \u00b7 PDF document upload',bp:'Slide 1 stops the scroll on its own. One idea per slide. QR call to action closes the deck.'},
+ {id:'single',ch:'li',name:'Single Post',spec:'1080\u00d71350 \u00b7 PNG',bp:'One sharp hook over a photo, one landing line, QR chip. Exactly one red accent line.'},
+ {id:'employee',ch:'li',name:'Featured Employee',spec:'1080\u00d71350 \u00b7 PNG',bp:'Real person, real quote in their voice. Name, trade, one detail line. Never invented.'},
+ {id:'job',ch:'li',name:'Featured Job',spec:'1080\u00d71350 \u00b7 PNG',bp:'Role with red trade accent, location, pay basis (no dollar amounts unless sourced), 3-5 requirements.'},
+ {id:'special',ch:'li',name:'Special Day',spec:'1080\u00d71350 \u00b7 PNG',bp:'Ties the occasion to craft workers and building. Warm one-line close. No politics.'},
+ {id:'gmb',ch:'gb',name:'GMB Post',spec:'1200\u00d7900 image \u00b7 \u22641500 chars',bp:'First 100 characters carry the message (Google truncates). No hashtags. One CTA button: Learn more, Call now, Sign up, Book, or Get offer.'}
+];
+const STYLE_TAG=id=>'['+id+']';
+function inspCountFor(id){return ENTRIES.filter(e=>e.source==='inspiration'&&(e.title||'').includes(STYLE_TAG(id))).length;}
+function paintStyles(){
+  el('stygrid').innerHTML=POST_TYPES.map(t=>{
+    const n=inspCountFor(t.id);
+    return '<div class="sty">'
+     +'<div class="sy-top"><span class="sy-name">'+t.name+'</span><span class="sy-ch '+t.ch+'">'+CHANNELS[t.ch]+'</span></div>'
+     +'<div class="sy-spec">'+t.spec+'</div>'
+     +'<div class="sy-bp">'+t.bp+'</div>'
+     +'<div class="sy-insp"><b>'+n+'</b> inspiration'+(n===1?'':'s')+' filed</div>'
+     +'<div class="sy-row"><a href="./social.html?style='+t.id+'">Build one</a><button onclick="toggleInsp(\''+t.id+'\')">+ Inspiration</button></div>'
+     +'<div class="sy-add" id="ia_'+t.id+'"><textarea id="it_'+t.id+'" placeholder="Paste an example post or a style note for '+t.name+'..."></textarea><button class="btn" onclick="saveInsp(\''+t.id+'\')">File into AQL</button><div class="status" id="is_'+t.id+'"></div></div>'
+     +'</div>';
+  }).join('');
+}
+function toggleInsp(id){el('ia_'+id).classList.toggle('open');}
+async function saveInsp(id){
+  const t=(el('it_'+id).value||'').trim();
+  if(t.length<10){el('is_'+id).textContent='Write or paste the inspiration first.';return;}
+  el('is_'+id).textContent='Filing...';
+  try{
+    const title='Social style inspiration '+STYLE_TAG(id);
+    const body=t.length>500?{action:'ingest',title:title,raw:t}:{action:'add',kind:'design',title:title,content:t,source:'inspiration'};
+    const d=await call(body);
+    if(d&&(d.entry||d.entries)){el('is_'+id).textContent='Filed. Every future '+id+' post learns from this.';el('it_'+id).value='';await load();paintStyles();}
+    else el('is_'+id).textContent=(d&&d.error)||'Failed.';
+  }catch(e){el('is_'+id).textContent='Failed. Try again.';}
+}
+const SLABEL={carousel:'Carousels',single:'LinkedIn Singles',employee:'Featured Employees',job:'Featured Jobs',special:'Special Days',gmb:'GMB Posts'};
+async function loadSavedPosts(){
+  try{
+    const r=await fetch(FN+'carousel-posts',{method:'POST',headers:{'content-type':'application/json','x-we-app':APP_KEY},body:JSON.stringify({action:'list'})});
+    const d=await r.json();
+    const posts=(d&&d.posts)||[];
+    el('pcount').textContent=posts.length+' posts';
+    if(!posts.length){el('postgrid').innerHTML='<div class="empty">No saved posts yet. Build some in Social Studio.</div>';return;}
+    const order=['carousel','single','employee','job','special','gmb'];
+    let h='';
+    order.forEach(k=>{
+      const grp=posts.filter(p=>(p.style||'carousel')===k);
+      if(!grp.length)return;
+      h+='<div class="pgroup"><div class="pgh">'+SLABEL[k]+' ('+grp.length+')</div>'
+        +grp.map(p=>'<div class="prow"><span class="pt">'+esc(p.title)+'</span><span class="pd">'+new Date(p.updated_at).toLocaleDateString()+'</span><a href="./social.html?post='+p.id+'">Open</a></div>').join('')
+        +'</div>';
+    });
+    el('postgrid').innerHTML=h;
+  }catch(e){el('postgrid').innerHTML='<div class="empty">Could not load posts.</div>';}
+}
+async function loadImages(){
+  try{
+    const r=await fetch(FN+'carousel-images',{method:'POST',headers:{'content-type':'application/json','x-we-app':APP_KEY},body:JSON.stringify({action:'list'})});
+    const d=await r.json();
+    const imgs=(d&&d.images)||[];
+    el('icount').textContent=imgs.length+' uploaded / generated (+10 built-in)';
+    el('imggrid').innerHTML=imgs.map(im=>'<img src="'+esc(im.url)+'" title="'+esc(im.prompt||'')+'" loading="lazy">').join('')||'';
+  }catch(e){el('icount').textContent='';}
+}
+function socialLoad(){paintStyles();loadSavedPosts();loadImages();}
+/* =============== END SOCIAL TAB =============== */
 </script>
 </body></html>
